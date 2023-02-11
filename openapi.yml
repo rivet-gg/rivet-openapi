@@ -3,6 +3,253 @@ info:
   title: Rivet API
   version: ''
 paths:
+  /identity/email/complete-verification:
+    post:
+      description: Completes the email verification process.
+      operationId: auth_identity_completeEmailVerification
+      tags:
+        - AuthIdentity
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthCompleteEmailVerificationOutput'
+      servers:
+        - url: https://auth.api.rivet.gg/v1
+      security: &ref_0
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthCompleteEmailVerificationInput'
+  /identity/email/start-verification:
+    post:
+      description: Starts the verification process for linking an email to your identity.
+      operationId: auth_identity_startEmailVerification
+      tags:
+        - AuthIdentity
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthStartEmailVerificationOutput'
+      servers:
+        - url: https://auth.api.rivet.gg/v1
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthStartEmailVerificationInput'
+  /tokens/identity:
+    post:
+      description: Refreshes the current identity's token and sets authentication headers.
+      operationId: auth_tokens_refreshIdentityToken
+      tags:
+        - AuthTokens
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthRefreshIdentityTokenOutput'
+      servers:
+        - url: https://auth.api.rivet.gg/v1
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRefreshIdentityTokenInput'
+  /identities/{identity_id}/thread:
+    get:
+      description: Returns a thread ID with a given identity.
+      operationId: chat_identity_getDirectThread
+      tags:
+        - ChatIdentity
+      parameters:
+        - name: identity_id
+          in: path
+          description: A universally unique identifier.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatGetDirectThreadOutput'
+      servers:
+        - url: https://chat.api.rivet.gg/v1
+      security: *ref_0
+  /entries/batch:
+    get:
+      description: Gets multiple key-value entries by key(s).
+      operationId: kv_batchOperations_getBatch
+      tags:
+        - KvBatchOperations
+      parameters:
+        - name: watch_index
+          in: query
+          description: A query parameter denoting the requests watch index.
+          required: false
+          schema:
+            type: string
+        - name: namespace_id
+          in: query
+          description: A universally unique identifier.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KvGetBatchOutput'
+      servers:
+        - url: https://kv.api.rivet.gg/v1
+      security: *ref_0
+    put:
+      description: Puts (sets or overwrites) multiple key-value entries by key(s).
+      operationId: kv_batchOperations_putBatch
+      tags:
+        - KvBatchOperations
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      servers:
+        - url: https://kv.api.rivet.gg/v1
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KvPutBatchInput'
+    delete:
+      description: Deletes multiple key-value entries by key(s).
+      operationId: kv_batchOperations_deleteBatch
+      tags:
+        - KvBatchOperations
+      parameters:
+        - name: namespace_id
+          in: query
+          description: A universally unique identifier.
+          required: false
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      servers:
+        - url: https://kv.api.rivet.gg/v1
+      security: *ref_0
+  /entries:
+    get:
+      description: Returns a specific key-value entry by key.
+      operationId: kv_operations_get
+      tags:
+        - KvOperations
+      parameters:
+        - name: key
+          in: query
+          description: >-
+            A string reprenting a key in the key-value database. Key path
+            components are split by a slash (e.g. `a/b/c` has the path
+            components `["a", "b", "c"]`). Slashes can be escaped by using a
+            forward slash (e.g. `a/b\/c/d` has the path components `["a", "b/c",
+            "d"]`). See `rivet.api.kv.common#KeyComponents` for the structure of
+            a `rivet.api.kv.common#Key` split by `/`.
+          required: true
+          schema:
+            type: string
+        - name: watch_index
+          in: query
+          description: A query parameter denoting the requests watch index.
+          required: false
+          schema:
+            type: string
+        - name: namespace_id
+          in: query
+          description: A universally unique identifier.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KvGetOutput'
+      servers:
+        - url: https://kv.api.rivet.gg/v1
+      security: *ref_0
+    put:
+      description: Puts (sets or overwrites) a key-value entry by key.
+      operationId: kv_operations_put
+      tags:
+        - KvOperations
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      servers:
+        - url: https://kv.api.rivet.gg/v1
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KvPutInput'
+    delete:
+      description: Deletes a key-value entry by key.
+      operationId: kv_operations_delete
+      tags:
+        - KvOperations
+      parameters:
+        - name: key
+          in: query
+          description: >-
+            A string reprenting a key in the key-value database. Key path
+            components are split by a slash (e.g. `a/b/c` has the path
+            components `["a", "b", "c"]`). Slashes can be escaped by using a
+            forward slash (e.g. `a/b\/c/d` has the path components `["a", "b/c",
+            "d"]`). See `rivet.api.kv.common#KeyComponents` for the structure of
+            a `rivet.api.kv.common#Key` split by `/`.
+          required: true
+          schema:
+            type: string
+        - name: namespace_id
+          in: query
+          description: A universally unique identifier.
+          required: false
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      servers:
+        - url: https://kv.api.rivet.gg/v1
+      security: *ref_0
   /lobbies/closed:
     put:
       description: >
@@ -10,7 +257,7 @@ paths:
         lobby.
 
         Does not shutdown the lobby.
-      operationId: LobbiesService.setClosed
+      operationId: matchmaker_lobbies_setClosed
       tags:
         - MatchmakerLobbies
       parameters: []
@@ -18,9 +265,8 @@ paths:
         '204':
           description: ''
       servers:
-        - url: https://party.api.rivet.gg/v1
-      security: &ref_0
-        - BearerAuth: []
+        - url: https://matchmaker.api.rivet.gg/v1
+      security: *ref_0
       requestBody:
         required: true
         content:
@@ -38,7 +284,7 @@ paths:
         Finds a lobby based on the given criteria.
         If a lobby is not found and `prevent_auto_create_lobby` is `true`, 
         a new lobby will be created.
-      operationId: LobbiesService.find
+      operationId: matchmaker_lobbies_find
       tags:
         - MatchmakerLobbies
       parameters:
@@ -55,7 +301,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/MatchmakerFindLobbyOutput'
       servers:
-        - url: https://party.api.rivet.gg/v1
+        - url: https://matchmaker.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -75,7 +321,7 @@ paths:
                 prevent_auto_create_lobby:
                   type: boolean
                 captcha:
-                  $ref: '#/components/schemas/CommonsCaptchaConfig'
+                  $ref: '#/components/schemas/CaptchaConfig'
               required:
                 - game_modes
   /lobbies/join:
@@ -84,7 +330,7 @@ paths:
         Joins a specific lobby.
         This request will use the direct player count configured for the
         lobby group.
-      operationId: LobbiesService.join
+      operationId: matchmaker_lobbies_join
       tags:
         - MatchmakerLobbies
       parameters: []
@@ -96,7 +342,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/MatchmakerJoinLobbyOutput'
       servers:
-        - url: https://party.api.rivet.gg/v1
+        - url: https://matchmaker.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -108,13 +354,13 @@ paths:
                 lobby_id:
                   type: string
                 captcha:
-                  $ref: '#/components/schemas/CommonsCaptchaConfig'
+                  $ref: '#/components/schemas/CaptchaConfig'
               required:
                 - lobby_id
   /lobbies/list:
     get:
       description: Lists all open lobbies.
-      operationId: LobbiesService.list
+      operationId: matchmaker_lobbies_list
       tags:
         - MatchmakerLobbies
       parameters: []
@@ -126,19 +372,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/MatchmakerListLobbiesOutput'
       servers:
-        - url: https://party.api.rivet.gg/v1
+        - url: https://matchmaker.api.rivet.gg/v1
       security: *ref_0
   /regions:
     get:
       description: >
         Returns a list of regions available to this namespace.
 
-
         Regions are sorted by most optimal to least optimal. The player's IP
         address
 
         is used to calculate the regions' optimality.
-      operationId: RegionsService.list
+      operationId: matchmaker_regions_list
       tags:
         - MatchmakerRegions
       parameters: []
@@ -150,23 +395,396 @@ paths:
               schema:
                 $ref: '#/components/schemas/MatchmakerListRegionsOutput'
       servers:
+        - url: https://matchmaker.api.rivet.gg/v1
+      security: *ref_0
+  /parties/self/activity/matchmaker/lobbies/find:
+    post:
+      description: >-
+        Attempts to make the current identity's party find a lobby based on the
+        given criteria. If succeeds, all party members will receive a
+        `GlobalEventMatchmakerLobbyJoin` event with all the information required
+        to join the lobby. This request will use the party player count
+        configured for the lobby group. See `FindLobby`.
+      operationId: party_activity_matchmaker_findLobbyForParty
+      tags:
+        - PartyActivityMatchmaker
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      servers:
+        - url: https://party.api.rivet.gg/v1
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: >-
+                #/components/schemas/PartyActivityFindMatchmakerLobbyForPartyInput
+  /parties/self/activity/matchmaker/lobbies/join:
+    post:
+      description: >-
+        Attempts to make the current identity's party join a specific matchmaker
+        lobby. This request will use the party player count configured for the
+        lobby group. If succeeds, all party members will receive a
+        `GlobalEventMatchmakerLobbyJoin` event with all the information required
+        to join the lobby. Identity must be the party leader. See `JoinLobby`.
+      operationId: party_activity_matchmaker_joinLobbyForParty
+      tags:
+        - PartyActivityMatchmaker
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      servers:
+        - url: https://party.api.rivet.gg/v1
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: >-
+                #/components/schemas/PartyActivityJoinMatchmakerLobbyForPartyInput
+  /parties/self/members/self/matchmaker/request-player:
+    post:
+      operationId: party_activity_matchmaker_requestPlayer
+      tags:
+        - PartyActivityMatchmaker
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      servers:
+        - url: https://party.api.rivet.gg/v1
+      security: *ref_0
+  /messages:
+    post:
+      description: Sends a chat message to a given topic.
+      operationId: chat_sendMessage
+      tags:
+        - Chat
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatSendMessageOutput'
+      servers:
+        - url: https://chat.api.rivet.gg/v1
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatSendMessageInput'
+  /threads/{thread_id}/history:
+    get:
+      description: |-
+        Returns message history for a given thread in a certain direction.
+        Defaults to querying messages before ts.
+      operationId: chat_getThreadHistory
+      tags:
+        - Chat
+      parameters:
+        - name: thread_id
+          in: path
+          description: A universally unique identifier.
+          required: true
+          schema:
+            type: string
+        - name: ts
+          in: query
+          description: RFC3339 timestamp.
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: count
+          in: query
+          description: >-
+            How many messages to collect in each direction. If querying
+            `rivet.api.chat.common#QueryDirection$before_and_after`,
+            `rivet.api.chat.common#QueryDirection$chat_messages` will be `count
+            * 2`.
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: query_direction
+          in: query
+          description: >-
+            Represents which direction to query messages from relative to the
+            given timestamp.
+          required: false
+          schema:
+            $ref: '#/components/schemas/ChatQueryDirection'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatGetThreadHistoryOutput'
+      servers:
+        - url: https://chat.api.rivet.gg/v1
+      security: *ref_0
+  /threads/{thread_id}/live:
+    get:
+      description: |-
+        Fetches all relevant changes from a thread that have happened since the
+        given watch index.
+      operationId: chat_watchThread
+      tags:
+        - Chat
+      parameters:
+        - name: thread_id
+          in: path
+          description: A universally unique identifier.
+          required: true
+          schema:
+            type: string
+        - name: watch_index
+          in: query
+          description: A query parameter denoting the requests watch index.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatWatchThreadOutput'
+      servers:
+        - url: https://chat.api.rivet.gg/v1
+      security: *ref_0
+  /threads/{thread_id}/read:
+    post:
+      description: Updates the current identity's last read timestamp in the given thread.
+      operationId: chat_setThreadRead
+      tags:
+        - Chat
+      parameters:
+        - name: thread_id
+          in: path
+          description: A universally unique identifier.
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      servers:
+        - url: https://chat.api.rivet.gg/v1
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatSetThreadReadInput'
+  /threads/{thread_id}/topic:
+    get:
+      description: Fetches the topic of a thread.
+      operationId: chat_getThreadTopic
+      tags:
+        - Chat
+      parameters:
+        - name: thread_id
+          in: path
+          description: A universally unique identifier.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatGetThreadTopicOutput'
+      servers:
+        - url: https://chat.api.rivet.gg/v1
+      security: *ref_0
+  /threads/{thread_id}/typing-status:
+    put:
+      description: Updates the current identity's typing status in the given thread.
+      operationId: chat_setTypingStatus
+      tags:
+        - Chat
+      parameters:
+        - name: thread_id
+          in: path
+          description: A universally unique identifier.
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      servers:
+        - url: https://chat.api.rivet.gg/v1
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatSetTypingStatusInput'
+  /identities:
+    post:
+      description: >-
+        Gets or creates an identity.
+
+        Passing an existing identity token in the body refreshes the token.
+
+        Temporary Accounts
+
+        Until the identity is linked with the Rivet Hub (see `PrepareGameLink`),
+        this identity will be temporary but still behave like all other
+        identities.
+
+        This is intended to allow users to play the game without signing up
+        while still having the benefits of having an account. When they are
+        ready to save their account, they should be instructed to link their
+        account (see `PrepareGameLink`).
+
+        Storing Token
+
+        `identity_token` should be stored in some form of persistent storage.
+        The token should be read from storage and passed to `Setup` every time
+        the client starts.
+      operationId: identity_setup
+      tags:
+        - Identity
+      parameters:
+        - name: identity_link_token
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/Jwt'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentitySetupOutput'
+      servers:
+        - url: https://identity.api.rivet.gg/v1
+      security: *ref_0
+  /parties/self/activity:
+    delete:
+      description: |-
+        Sets the activity of the current identity's party to idle.
+        Identity must be the party leader.
+      operationId: party_activity_setPartyToIdle
+      tags:
+        - PartyActivity
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      servers:
         - url: https://party.api.rivet.gg/v1
       security: *ref_0
 components:
   schemas:
-    CommonsCaptchaConfig:
-      oneOf:
-        - type: object
-          allOf:
-            - $ref: '#/components/schemas/CommonsCaptchaConfigHcaptcha'
-            - type: object
-              properties:
-                type:
-                  type: string
-                  enum:
-                    - hcaptcha
+    AuthCompleteStatus:
+      type: string
+      enum:
+        - switch_identity
+        - linked_account_added
+        - already_complete
+        - expired
+        - too_many_attempts
+        - incorrect
+      description: Represents the state of an external account linking process.
+    AuthCompleteEmailVerificationInput:
+      type: object
+      properties:
+        verification_id:
+          type: string
+          description: A universally unique identifier.
+        code:
+          type: string
+          description: The code sent to the requestee's email.
+      required:
+        - verification_id
+        - code
+    AuthCompleteEmailVerificationOutput:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/AuthCompleteStatus'
+      required:
+        - status
+    AuthStartEmailVerificationInput:
+      type: object
+      properties:
+        email:
+          type: string
+        captcha:
+          $ref: '#/components/schemas/CaptchaConfig'
+        game_id:
+          type: string
+          description: A universally unique identifier.
+      required:
+        - email
+        - captcha
+    AuthStartEmailVerificationOutput:
+      type: object
+      properties:
+        verification_id:
+          type: string
+          description: A universally unique identifier.
+      required:
+        - verification_id
+    AuthRefreshIdentityTokenInput:
+      type: object
+      properties:
+        logout:
+          type: boolean
+          description: >-
+            When `true`, the current identity for the provided cookie will be
+            logged out and a new identity will be returned.
+    AuthRefreshIdentityTokenOutput:
+      type: object
+      properties:
+        token:
+          type: string
+          description: >-
+            A JSON Web Token.
+
+            Slightly modified to include a description prefix and use Protobufs
+            of
+
+            JSON.
+        exp:
+          type: string
+          description: Token expiration time (in milliseconds).
+        identity_id:
+          type: string
+          description: A universally unique identifier.
+      required:
+        - token
+        - exp
+        - identity_id
+    CaptchaConfig:
+      type: object
       description: Methods to verify a captcha
-    CommonsCaptchaConfigHcaptcha:
+      properties:
+        hcaptcha:
+          $ref: '#/components/schemas/CaptchaConfigHcaptcha'
+        turnstile:
+          $ref: '#/components/schemas/CaptchaConfigTurnstile'
+    CaptchaConfigHcaptcha:
       type: object
       description: Captcha configuration.
       properties:
@@ -174,19 +792,294 @@ components:
           type: string
       required:
         - client_response
-    CommonsIdentifier:
+    CaptchaConfigTurnstile:
+      type: object
+      description: Captcha configuration.
+      properties:
+        client_response:
+          type: string
+      required:
+        - client_response
+    ChatSendTopic:
+      type: object
+      description: Topic to send a chat message to.
+      properties:
+        thread_id:
+          type: string
+          format: uuid
+        group_id:
+          type: string
+          format: uuid
+        party_id:
+          type: string
+          format: uuid
+        identity_id:
+          type: string
+          format: uuid
+    ChatSendMessageBody:
+      type: object
+      description: Data to send in a chat message.
+      properties:
+        text:
+          $ref: '#/components/schemas/ChatSendMessageBodyText'
+        party_invite:
+          $ref: '#/components/schemas/ChatSendMessageBodyPartyInvite'
+    ChatSendMessageBodyText:
+      type: object
+      description: The text in the text message.
+      properties:
+        body:
+          type: string
+      required:
+        - body
+    ChatSendMessageBodyPartyInvite:
+      type: object
+      properties:
+        token:
+          $ref: '#/components/schemas/Jwt'
+      required:
+        - token
+    ChatMessage:
+      type: object
+      properties:
+        chat_message_id:
+          type: string
+          format: uuid
+        thread_id:
+          type: string
+          format: uuid
+        send_ts:
+          $ref: '#/components/schemas/Timestamp'
+      required:
+        - chat_message_id
+        - thread_id
+        - send_ts
+    ChatSimpleTopic:
+      type: object
+      description: >
+        Represents a topic of the given chat thread without the associated
+        handles
+
+        for the topic.
+      properties:
+        group:
+          $ref: '#/components/schemas/ChatSimpleTopicGroup'
+        party:
+          $ref: '#/components/schemas/ChatSimpleTopicParty'
+        direct:
+          $ref: '#/components/schemas/ChatSimpleTopicDirect'
+    ChatSimpleTopicGroup:
+      type: object
+      properties:
+        group:
+          type: string
+          format: uuid
+      required:
+        - group
+    ChatSimpleTopicParty:
+      type: object
+      properties:
+        party:
+          type: string
+          format: uuid
+      required:
+        - party
+    ChatSimpleTopicDirect:
+      type: object
+      properties:
+        identity_a:
+          type: string
+          format: uuid
+        identity_b:
+          type: string
+          format: uuid
+      required:
+        - identity_a
+        - identity_b
+    ChatTypingStatus:
+      type: object
+      properties:
+        idle:
+          $ref: '#/components/schemas/EmptyObject'
+          description: Not typing
+        typing:
+          $ref: '#/components/schemas/EmptyObject'
+          description: Typing
+    ChatIdentityTypingStatus:
+      type: object
+      properties:
+        identity:
+          $ref: '#/components/schemas/IdentityHandle'
+        status:
+          $ref: '#/components/schemas/ChatTypingStatus'
+      required:
+        - identity
+        - status
+    ChatGetDirectThreadOutput:
+      type: object
+      properties:
+        thread_id:
+          type: string
+          description: A universally unique identifier.
+        identity:
+          $ref: '#/components/schemas/IdentityHandle'
+    Identifier:
       type: string
       description: >-
         A human readable short identifier used to references resources.
         Different than a `uuid` because this is intended to be human readable.
         Different than `DisplayName` because this should not include special
         characters and be short.
-    CommonsJWT:
+    Bio:
+      type: string
+      description: Follows regex ^(?:[^\n\r]+\n?|\n){1,5}$
+    Email:
+      type: string
+      description: A valid email address
+    Jwt:
       type: string
       description: Documentation at https://jwt.io/
-    CommonsDisplayName:
+    WatchResponse:
+      type: object
+      description: Provided by watchable endpoints used in blocking loops.
+      properties:
+        index:
+          type: string
+          description: |
+            Index indicating the version of the data responded.
+            Pass this to `WatchQuery` to block and wait for the next response.
+      required:
+        - index
+    DisplayName:
       type: string
-    CommonsCoord:
+    AccountNumber:
+      type: integer
+    Timestamp:
+      type: string
+      description: RFC3339 timestamp
+    EmptyObject:
+      type: object
+      properties: {}
+    GameHandle:
+      type: object
+      properties:
+        game_id:
+          type: string
+          format: uuid
+        name_id:
+          $ref: '#/components/schemas/Identifier'
+        display_name:
+          $ref: '#/components/schemas/DisplayName'
+        logo_url:
+          type: string
+        banner_url:
+          type: string
+      required:
+        - game_id
+        - name_id
+        - display_name
+        - logo_url
+        - banner_url
+    GameStatSummary:
+      type: object
+      description: A game statistic summary.
+      properties:
+        game:
+          $ref: '#/components/schemas/GameHandle'
+        stats:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameStat'
+      required:
+        - game
+        - stats
+    GameStat:
+      type: object
+      description: A game statistic.
+      properties:
+        config:
+          $ref: '#/components/schemas/GameStatConfig'
+        overall_value:
+          type: number
+          format: double
+          description: A single overall value of the given statistic.
+      required:
+        - config
+        - overall_value
+    GameStatConfig:
+      type: object
+      description: A game statistic config.
+      properties:
+        record_id:
+          type: string
+          format: uuid
+        icon_id:
+          type: string
+          format: uuid
+        format:
+          $ref: '#/components/schemas/GameStatFormatMethod'
+        aggregation:
+          $ref: '#/components/schemas/GameStatAggregationMethod'
+        sorting:
+          $ref: '#/components/schemas/GameStatSortingMethod'
+        priority:
+          type: integer
+        display_name:
+          $ref: '#/components/schemas/DisplayName'
+        postfix_singular:
+          type: string
+          description: >-
+            A string appended to the end of a singular game statistic's value.
+            Example: 1 **dollar**.
+        postfix_plural:
+          type: string
+          description: >-
+            A string appended to the end of a game statistic's value that is not
+            exactly 1. Example: 45 **dollars**.
+        prefix_singular:
+          type: string
+          description: >-
+            A string appended to the beginning of a singular game statistic's
+            value. Example: **value** 1.
+        prefix_plural:
+          type: string
+          description: >-
+            A string prepended to the beginning of a game statistic's value that
+            is not exactly 1. Example: **values** 45.
+      required:
+        - record_id
+        - icon_id
+        - format
+        - aggregation
+        - sorting
+        - priority
+        - display_name
+    GameStatFormatMethod:
+      type: string
+      enum:
+        - integer
+        - float_1
+        - float_2
+        - float_3
+        - duration_minute
+        - duration_second
+        - duration_hundredth_second
+      description: A value denoting the format method of a game statistic.
+    GameStatAggregationMethod:
+      type: string
+      enum:
+        - sum
+        - average
+        - min
+        - max
+      description: A value denoting the aggregation method of a game statistic.
+    GameStatSortingMethod:
+      type: string
+      enum:
+        - desc
+        - asc
+      description: A value denoting the sorting method of a game statistic.
+    GeoCoord:
       type: object
       description: Geographical coordinates for a location on Planet Earth.
       properties:
@@ -199,7 +1092,7 @@ components:
       required:
         - latitude
         - longitude
-    CommonsDistance:
+    GeoDistance:
       type: object
       description: Distance available in multiple units.
       properties:
@@ -212,85 +1105,282 @@ components:
       required:
         - kilometers
         - miles
-    CommonsMatchmakerLobbyJoinInfo:
+    IdentityHandle:
       type: object
-      description: A matchmaker lobby.
+      description: An identity handle.
       properties:
-        lobby_id:
+        identity_id:
           type: string
           format: uuid
-        region:
-          $ref: '#/components/schemas/CommonsMatchmakerLobbyJoinInfoRegion'
-        ports:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/CommonsMatchmakerLobbyJoinInfoPort'
-        player:
-          $ref: '#/components/schemas/CommonsMatchmakerLobbyJoinInfoPlayer'
-      required:
-        - lobby_id
-        - region
-        - ports
-        - player
-    CommonsMatchmakerLobbyJoinInfoRegion:
-      type: object
-      description: A matchmaker lobby region.
-      properties:
-        region_id:
-          $ref: '#/components/schemas/CommonsIdentifier'
         display_name:
-          $ref: '#/components/schemas/CommonsDisplayName'
+          $ref: '#/components/schemas/DisplayName'
+        account_number:
+          $ref: '#/components/schemas/AccountNumber'
+        avatar_url:
+          type: string
+          description: The URL of this identity's avatar image.
+        presence:
+          $ref: '#/components/schemas/IdentityPresence'
+        party:
+          $ref: '#/components/schemas/PartyHandle'
+        is_registered:
+          type: boolean
+          description: Whether or not this identity is registered with a linked account.
+        external:
+          $ref: '#/components/schemas/IdentityExternalLinks'
       required:
-        - region_id
+        - identity_id
         - display_name
-    CommonsMatchmakerLobbyJoinInfoPort:
+        - account_number
+        - avatar_url
+        - is_registered
+        - external
+    IdentityProfile:
+      type: object
+      description: An identity profile.
+      properties:
+        identity_id:
+          type: string
+          format: uuid
+        display_name:
+          $ref: '#/components/schemas/DisplayName'
+        account_number:
+          $ref: '#/components/schemas/AccountNumber'
+        avatar_url:
+          type: string
+          description: The URL of this identity's avatar image.
+        presence:
+          $ref: '#/components/schemas/IdentityPresence'
+        party:
+          $ref: '#/components/schemas/PartySummary'
+          description: Whether or not this identity is registered with a linked account.
+        is_registered:
+          type: boolean
+          description: Whether or not this identity is registered with a linked account.
+        external:
+          $ref: '#/components/schemas/IdentityExternalLinks'
+        is_admin:
+          type: boolean
+          description: Whether or not this identity is an admin.
+        is_game_linked:
+          type: boolean
+          description: >-
+            Whether or not this game user has been linked through the Rivet
+            dashboard.
+        dev_state:
+          $ref: '#/components/schemas/IdentityDevState'
+        follower_count:
+          type: integer
+        following_count:
+          type: integer
+        following:
+          type: boolean
+          description: Whether or not the requestee's identity is following this identity.
+        is_following_me:
+          type: boolean
+          description: >-
+            Whether or not this identity is both followng and is followed by the
+            requestee's identity.
+        is_mutual_following:
+          type: boolean
+        join_ts:
+          $ref: '#/components/schemas/Timestamp'
+        bio:
+          $ref: '#/components/schemas/Bio'
+        linked_accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentityLinkedAccount'
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentityGroup'
+        games:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameStatSummary'
+      required:
+        - identity_id
+        - display_name
+        - account_number
+        - avatar_url
+        - is_registered
+        - external
+        - is_admin
+        - follower_count
+        - following_count
+        - following
+        - is_following_me
+        - is_mutual_following
+        - join_ts
+        - bio
+        - linked_accounts
+        - groups
+        - games
+    IdentityExternalLinks:
+      type: object
+      description: External links for an identity.
+      properties:
+        profile:
+          type: string
+          description: A link to this identity's profile page.
+        settings:
+          type: string
+          description: A link to the Rivet settings page.
+        chat:
+          type: string
+          description: A link to a chat page with the given identity.
+      required:
+        - profile
+    IdentityPresence:
+      type: object
+      description: Information about the identity's current status, party, and active game.
+      properties:
+        update_ts:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/IdentityStatus'
+        game_activity:
+          $ref: '#/components/schemas/IdentityGameActivity'
+      required:
+        - update_ts
+        - status
+    IdentityStatus:
+      type: string
+      enum:
+        - online
+        - away
+        - offline
+      description: >-
+        The current status of an identity. This helps players understand if
+        another player is currently playing or has their game in the background.
+    IdentityGameActivity:
+      type: object
+      description: The game an identity is currently participating in.
+      properties:
+        game:
+          $ref: '#/components/schemas/GameHandle'
+        message:
+          type: string
+          description: A short activity message about the current game activity.
+        public_metadata:
+          description: JSON data seen by anyone.
+        mutual_metadata:
+          description: >-
+            JSON data seen only by the given identity and their mutual
+            followers.
+      required:
+        - game
+        - message
+        - public_metadata
+        - mutual_metadata
+    IdentityGroup:
+      type: object
+      description: A group that the given identity.
+      properties:
+        group:
+          $ref: '#/components/schemas/GroupHandle'
+      required:
+        - group
+    IdentityDevState:
+      type: string
+      enum:
+        - inactive
+        - pending
+        - accepted
+      description: The state of the given identity's developer status.
+    IdentityLinkedAccount:
+      type: object
+      description: A union representing an identity's linked accounts.
+      properties:
+        email:
+          $ref: '#/components/schemas/IdentityEmailLinkedAccount'
+    IdentityEmailLinkedAccount:
+      type: object
+      description: An identity's linked email.
+      properties:
+        email:
+          $ref: '#/components/schemas/Email'
+      required:
+        - email
+    KvGetBatchOutput:
       type: object
       properties:
-        host:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/KvEntry'
+          description: A list of key-value entries.
+        watch:
+          $ref: '#/components/schemas/WatchResponse'
+      required:
+        - entries
+        - watch
+    KvPutBatchInput:
+      type: object
+      properties:
+        namespace_id:
           type: string
-          description: |
-            The host for the given port. Will be null if using a port range.
-        hostname:
-          type: string
-        port:
-          type: integer
-          description: |
-            The port number for this lobby. Will be null if using a port range.
-        port_range:
-          $ref: '#/components/schemas/CommonsMatchmakerLobbyJoinInfoPortRange'
-          description: >
-            Whether or not this lobby port uses TLS. You cannot mix a non-TLS
-            and TLS ports.
-        is_tls:
+          description: A universally unique identifier.
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/KvPutEntry'
+          description: A list of entries to insert.
+      required:
+        - entries
+    KvEntry:
+      type: object
+      description: A key-value entry.
+      properties:
+        key:
+          type: array
+          items:
+            type: string
+          description: A key separated into components.
+        deleted:
           type: boolean
       required:
-        - hostname
-        - port_range
-        - is_tls
-    CommonsMatchmakerLobbyJoinInfoPortRange:
+        - key
+    KvPutEntry:
       type: object
-      description: Inclusive range of ports that can be connected to.
+      description: A new entry to insert into the key-value database.
       properties:
-        min:
-          type: integer
-          description: Minimum port that can be connected to. Inclusive range.
-        max:
-          type: integer
-          description: Maximum port that can be connected to. Inclusive range.
+        key:
+          type: string
+          description: >-
+            A string reprenting a key in the key-value database. Key path
+            components are split by a slash (e.g. `a/b/c` has the path
+            components `["a", "b", "c"]`). Slashes can be escaped by using a
+            forward slash (e.g. `a/b\/c/d` has the path components `["a", "b/c",
+            "d"]`). See `rivet.api.kv.common#KeyComponents` for the structure of
+            a `rivet.api.kv.common#Key` split by `/`.
       required:
-        - min
-        - max
-    CommonsMatchmakerLobbyJoinInfoPlayer:
+        - key
+    KvGetOutput:
       type: object
-      description: A matchmaker lobby player.
       properties:
-        token:
-          $ref: '#/components/schemas/CommonsJWT'
-          description: >
-            Pass this token through the socket to the lobby server. The lobby
-            server will validate this token with `PlayerConnected.player_token`
+        deleted:
+          type: boolean
+          description: >-
+            Whether or not the entry has been deleted. Only set when watching
+            this endpoint.
+        watch:
+          $ref: '#/components/schemas/WatchResponse'
       required:
-        - token
+        - watch
+    KvPutInput:
+      type: object
+      properties:
+        namespace_id:
+          type: string
+          description: A universally unique identifier.
+        key:
+          type: string
+          description: Any JSON value to set the key to.
+      required:
+        - key
     MatchmakerLobbyInfo:
       type: object
       description: A public lobby in the lobby list.
@@ -323,7 +1413,7 @@ components:
       description: A game mode that the player can join.
       properties:
         game_mode_id:
-          $ref: '#/components/schemas/CommonsIdentifier'
+          $ref: '#/components/schemas/Identifier'
       required:
         - game_mode_id
     MatchmakerRegionInfo:
@@ -331,37 +1421,131 @@ components:
       description: A region that the player can connect to.
       properties:
         region_id:
-          $ref: '#/components/schemas/CommonsIdentifier'
+          $ref: '#/components/schemas/Identifier'
         provider_display_name:
           type: string
-          format: uuid
         region_display_name:
           type: string
-          format: uuid
         datacenter_coord:
-          $ref: '#/components/schemas/CommonsCoord'
+          $ref: '#/components/schemas/GeoCoord'
         datacenter_distance_from_client:
-          $ref: '#/components/schemas/CommonsDistance'
+          $ref: '#/components/schemas/GeoDistance'
       required:
         - region_id
         - provider_display_name
         - region_display_name
         - datacenter_coord
         - datacenter_distance_from_client
+    MatchmakerJoinLobby:
+      type: object
+      description: A matchmaker lobby.
+      properties:
+        lobby_id:
+          type: string
+          format: uuid
+        region:
+          $ref: '#/components/schemas/MatchmakerJoinRegion'
+        ports:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/MatchmakerJoinPort'
+          description: '**Deprecated**'
+        player:
+          $ref: '#/components/schemas/MatchmakerJoinPlayer'
+          description: '**Deprecated**'
+      required:
+        - lobby_id
+        - region
+        - ports
+        - player
+    MatchmakerJoinRegion:
+      type: object
+      description: A matchmaker lobby region.
+      properties:
+        region_id:
+          $ref: '#/components/schemas/Identifier'
+        display_name:
+          $ref: '#/components/schemas/DisplayName'
+      required:
+        - region_id
+        - display_name
+    MatchmakerJoinPort:
+      type: object
+      properties:
+        host:
+          type: string
+          description: |
+            The host for the given port. Will be null if using a port range.
+        hostname:
+          type: string
+        port:
+          type: integer
+          description: |
+            The port number for this lobby. Will be null if using a port range.
+        port_range:
+          $ref: '#/components/schemas/MatchmakerJoinPortRange'
+          description: >
+            Whether or not this lobby port uses TLS. You cannot mix a non-TLS
+            and TLS ports.
+        is_tls:
+          type: boolean
+      required:
+        - hostname
+        - is_tls
+    MatchmakerJoinPortRange:
+      type: object
+      description: Inclusive range of ports that can be connected to.
+      properties:
+        min:
+          type: integer
+          description: Minimum port that can be connected to. Inclusive range.
+        max:
+          type: integer
+          description: Maximum port that can be connected to. Inclusive range.
+      required:
+        - min
+        - max
+    MatchmakerJoinPlayer:
+      type: object
+      description: A matchmaker lobby player.
+      properties:
+        token:
+          $ref: '#/components/schemas/Jwt'
+          description: >
+            Pass this token through the socket to the lobby server. The lobby
+            server will validate this token with `PlayerConnected.player_token`
+      required:
+        - token
     MatchmakerFindLobbyOutput:
       type: object
       properties:
         lobby:
-          $ref: '#/components/schemas/CommonsMatchmakerLobbyJoinInfo'
+          $ref: '#/components/schemas/MatchmakerJoinLobby'
+        ports:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/MatchmakerJoinPort'
+        player:
+          $ref: '#/components/schemas/MatchmakerJoinPlayer'
       required:
         - lobby
+        - ports
+        - player
     MatchmakerJoinLobbyOutput:
       type: object
       properties:
         lobby:
-          $ref: '#/components/schemas/CommonsMatchmakerLobbyJoinInfo'
+          $ref: '#/components/schemas/MatchmakerJoinLobby'
+        ports:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/MatchmakerJoinPort'
+        player:
+          $ref: '#/components/schemas/MatchmakerJoinPlayer'
       required:
         - lobby
+        - ports
+        - player
     MatchmakerListLobbiesOutput:
       type: object
       properties:
@@ -390,6 +1574,305 @@ components:
             $ref: '#/components/schemas/MatchmakerRegionInfo'
       required:
         - regions
+    PartyActivityFindMatchmakerLobbyForPartyInput:
+      type: object
+      properties:
+        game_modes:
+          type: array
+          items:
+            type: string
+          description: Game modes to match lobbies against.
+        regions:
+          type: array
+          items:
+            type: string
+          description: >-
+            Regions to match lobbies against. If not specified, the optimal
+            region
+
+            will be determined and will attempt to find lobbies in that region.
+        prevent_auto_create_lobby:
+          type: boolean
+          description: |-
+            Prevents a new lobby from being created when finding a lobby. If no
+            lobby is found, `MATCHMAKER_LOBBY_NOT_FOUND` will be returned.
+        captcha:
+          $ref: '#/components/schemas/CaptchaConfig'
+      required:
+        - game_modes
+    PartyActivityJoinMatchmakerLobbyForPartyInput:
+      type: object
+      properties:
+        lobby_id:
+          type: string
+          description: A universally unique identifier.
+        captcha:
+          $ref: '#/components/schemas/CaptchaConfig'
+      required:
+        - lobby_id
+    PartySummary:
+      type: object
+      properties:
+        party_id:
+          type: string
+          format: uuid
+        create_ts:
+          $ref: '#/components/schemas/Timestamp'
+        activity:
+          $ref: '#/components/schemas/PartyActivity'
+        external:
+          $ref: '#/components/schemas/PartyExternalLinks'
+        publicity:
+          $ref: '#/components/schemas/PartyPublicity'
+        party_size:
+          type: integer
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/PartyMemberSummary'
+        thread_id:
+          type: string
+          format: uuid
+      required:
+        - party_id
+        - create_ts
+        - activity
+        - external
+        - publicity
+        - party_size
+        - members
+        - thread_id
+    PartyActivity:
+      type: object
+      description: A union representing the activity of a given party.
+      properties:
+        idle:
+          $ref: '#/components/schemas/EmptyObject'
+          description: A party activity denoting that the party is idle.
+        matchmaker_finding_lobby:
+          $ref: '#/components/schemas/PartyActivityMatchmakerFindingLobby'
+        matchmaker_lobby:
+          $ref: '#/components/schemas/PartyActivityMatchmakerLobby'
+    PartyActivityMatchmakerFindingLobby:
+      type: object
+      description: >-
+        A party activity denoting that the party is currently searching for a
+        lobby.
+      properties:
+        game:
+          $ref: '#/components/schemas/GameHandle'
+      required:
+        - game
+    PartyActivityMatchmakerLobby:
+      type: object
+      description: A party activity denoting that the party is currently in a lobby.
+      properties:
+        lobby:
+          $ref: '#/components/schemas/PartyMatchmakerLobby'
+        game:
+          $ref: '#/components/schemas/GameHandle'
+      required:
+        - lobby
+        - game
+    PartyExternalLinks:
+      type: object
+      description: External links for a party.
+      properties:
+        chat:
+          type: string
+          description: A link to the given party's chat thread.
+      required:
+        - chat
+    PartyMatchmakerLobby:
+      type: object
+      description: A party lobby.
+      properties:
+        lobby_id:
+          type: string
+          format: uuid
+      required:
+        - lobby_id
+    PartyPublicity:
+      type: object
+      properties:
+        public:
+          $ref: '#/components/schemas/PartyPublicityLevel'
+        mutual_followers:
+          $ref: '#/components/schemas/PartyPublicityLevel'
+        groups:
+          $ref: '#/components/schemas/PartyPublicityLevel'
+      required:
+        - public
+        - mutual_followers
+        - groups
+    PartyPublicityLevel:
+      type: string
+      enum:
+        - none
+        - view
+        - join
+    PartyMemberSummary:
+      type: object
+      properties:
+        identity:
+          $ref: '#/components/schemas/IdentityHandle'
+        is_leader:
+          type: boolean
+          description: Whether or not this party member is the leader of the given party.
+        join_ts:
+          type: string
+          format: date-time
+        state:
+          $ref: '#/components/schemas/PartyMemberState'
+      required:
+        - identity
+        - is_leader
+        - join_ts
+        - state
+    PartyMemberState:
+      type: object
+      properties:
+        idle:
+          $ref: '#/components/schemas/EmptyObject'
+          description: A party member state denoting that the member is idle.
+        matchmaker_pending:
+          $ref: '#/components/schemas/EmptyObject'
+          description: >-
+            A party member state denoting that the member is currently waiting
+            to start matchmaking.
+        matchmaker_finding_lobby:
+          $ref: '#/components/schemas/EmptyObject'
+          description: >-
+            A party member state denoting that the member is currently searching
+            for a lobby.
+        matchmaker_lobby:
+          $ref: '#/components/schemas/PartyMemberStateMatchmakerLobby'
+    PartyMemberStateMatchmakerLobby:
+      type: object
+      description: A party member state denoting that the member is in a lobby.
+      properties:
+        player_id:
+          type: string
+          format: uuid
+      required:
+        - player_id
+    ChatSendMessageInput:
+      type: object
+      properties:
+        topic:
+          $ref: '#/components/schemas/ChatSendTopic'
+        message_body:
+          $ref: '#/components/schemas/ChatSendMessageBody'
+      required:
+        - topic
+        - message_body
+    ChatSendMessageOutput:
+      type: object
+      properties:
+        chat_message_id:
+          type: string
+          description: A universally unique identifier.
+      required:
+        - chat_message_id
+    ChatGetThreadHistoryOutput:
+      type: object
+      properties:
+        chat_messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+          description: |-
+            Ordered old to new.
+            If querying `rivet.api.chat.common#before_and_after`, this will be
+            `count * 2` long.
+      required:
+        - chat_messages
+    ChatWatchThreadOutput:
+      type: object
+      properties:
+        chat_messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+          description: |-
+            All messages new messages posted to this thread. Ordered
+            old to new.
+        typing_statuses:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatIdentityTypingStatus'
+          description: All identities that are currently typing in this thread.
+        watch:
+          $ref: '#/components/schemas/WatchResponse'
+      required:
+        - chat_messages
+        - watch
+    ChatSetThreadReadInput:
+      type: object
+      properties:
+        last_read_ts:
+          type: string
+          description: |-
+            Any messages newer than this timestamp will be marked as unread.
+            This should be the current timestamp (in milliseconds).
+      required:
+        - last_read_ts
+    ChatGetThreadTopicOutput:
+      type: object
+      properties:
+        topic:
+          $ref: '#/components/schemas/ChatSimpleTopic'
+      required:
+        - topic
+    ChatSetTypingStatusInput:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/ChatTypingStatus'
+      required:
+        - status
+    IdentitySetupOutput:
+      type: object
+      properties:
+        identity_token:
+          $ref: '#/components/schemas/Jwt'
+          description: >
+            Token used to authenticate the identity. 
+
+            Should be stored somewhere permanent. 
+
+            Pass this to `rivet.api.identity#Setup$existing_identity_token` next
+            time `rivet.api.identity#Setup` is called. 
+
+            Token has a 90 day TTL. 
+
+            This means that if `rivet.api.identity#Setup` is not called again
+            within 90 days, the token will no longer be valid. 
+
+            If this happens, the user can recover their account through the
+            linking process (see `rivet.api.identity#PrepareGameLink`). 
+
+            This token should be stored locally and never sent to a server or
+            another device. 
+
+            If this token is comprimised, anyone with access to this token has
+            control of the identity.
+        identity_token_expire_ts:
+          $ref: '#/components/schemas/Timestamp'
+          description: |
+            Timestamp (in milliseconds) at which the token expires.
+        identity:
+          $ref: '#/components/schemas/IdentityProfile'
+          description: |
+            Information about the identity that was just authenticated.
+        game_id:
+          type: string
+          format: uuid
+      required:
+        - identity_token
+        - identity_token_expire_ts
+        - identity
+        - game_id
   securitySchemes:
     BearerAuth:
       type: http
