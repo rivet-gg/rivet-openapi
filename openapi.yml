@@ -839,6 +839,12 @@ components:
           $ref: '#/components/schemas/Jwt'
       required:
         - token
+    ChatQueryDirection:
+      type: string
+      enum:
+        - before
+        - after
+        - before_and_after
     ChatMessage:
       type: object
       properties:
@@ -1105,6 +1111,40 @@ components:
       required:
         - kilometers
         - miles
+    GroupHandle:
+      type: object
+      description: A group handle.
+      properties:
+        group_id:
+          type: string
+          format: uuid
+        display_name:
+          $ref: '#/components/schemas/DisplayName'
+        avatar_url:
+          type: string
+          description: The URL of this group's avatar image
+        external:
+          $ref: '#/components/schemas/GroupExternalLinks'
+        is_developer:
+          type: boolean
+          description: Whether or not this group is a developer group.
+      required:
+        - group_id
+        - display_name
+        - external
+    GroupExternalLinks:
+      type: object
+      description: External links for this group.
+      properties:
+        profile:
+          type: string
+          description: A link to this group's profile page.
+        chat:
+          type: string
+          description: A link to this group's chat page.
+      required:
+        - profile
+        - chat
     IdentityHandle:
       type: object
       description: An identity handle.
@@ -1642,6 +1682,24 @@ components:
         - party_size
         - members
         - thread_id
+    PartyHandle:
+      type: object
+      properties:
+        party_id:
+          type: string
+          format: uuid
+        create_ts:
+          type: string
+          format: date-time
+        activity:
+          $ref: '#/components/schemas/PartyActivity'
+        external:
+          $ref: '#/components/schemas/PartyExternalLinks'
+      required:
+        - party_id
+        - create_ts
+        - activity
+        - external
     PartyActivity:
       type: object
       description: A union representing the activity of a given party.
