@@ -4526,18 +4526,36 @@ paths:
       servers:
         - url: https://kv.api.rivet.gg/v1
       security: *ref_0
-  /parties/self/activity:
-    delete:
-      description: |-
-        Sets the activity of the current identity's party to idle.
-        Identity must be the party leader.
-      operationId: party_activity_setPartyToIdle
+  /modules/{module}/scripts/{script}/call:
+    post:
+      description: |
+        Makes a request to a module's script.
+      operationId: module_call
       tags:
-        - PartyActivity
-      parameters: []
+        - Module
+      parameters:
+        - name: module
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: script
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: origin
+          in: header
+          required: false
+          schema:
+            type: string
       responses:
-        '204':
+        '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleCallResponse'
         '400':
           description: ''
           content:
@@ -4575,8 +4593,21 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
       servers:
-        - url: https://party.api.rivet.gg/v1
+        - url: https://module.api.rivet.gg/v1
       security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                namespace_id:
+                  type: string
+                  format: uuid
+                data: {}
+              required:
+                - data
   /identities/{identity_id}/thread:
     get:
       description: Returns a thread ID with a given identity.
@@ -5735,85 +5766,6 @@ paths:
       servers:
         - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /games/namespaces/analytics:
-    get:
-      operationId: cloud_games_games_getAnalytics
-      tags:
-        - CloudGamesGames
-      parameters:
-        - name: query_start
-          in: query
-          required: true
-          schema:
-            type: string
-            format: date-time
-        - name: query_end
-          in: query
-          required: true
-          schema:
-            type: string
-            format: date-time
-        - name: game_ids
-          in: query
-          required: false
-          schema:
-            type: string
-        - name: namespace_ids
-          in: query
-          required: false
-          schema:
-            type: string
-        - name: variants
-          in: query
-          required: true
-          schema:
-            $ref: '#/components/schemas/CloudAnalyticsVariantQuery'
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CloudGamesGetAnalyticsResponse'
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
-      security: *ref_0
   /games/{game_id}/matchmaker/lobbies/export-history:
     post:
       description: Exports lobby history over a given query time span.
@@ -6095,7 +6047,7 @@ paths:
               $ref: '#/components/schemas/CloudGamesExportLobbyLogsRequest'
   /games/{game_id}/namespaces/{namespace_id}/analytics/matchmaker/live:
     get:
-      description: Returns live information about all active lobies for a given namespace.
+      description: Returns live information about all active lobbies for a given namespace.
       operationId: cloud_games_namespaces_analytics_getAnalyticsMatchmakerLive
       tags:
         - CloudGamesNamespacesAnalytics
@@ -6617,348 +6569,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CloudValidateGroupRequest'
-  /groups/{group_id}/billing:
-    get:
-      description: >-
-        Returns billing information for the given group over the given query
-        time span.
-      operationId: cloud_groups_getBilling
-      tags:
-        - CloudGroups
-      parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: query_start
-          in: query
-          required: false
-          schema:
-            type: string
-            format: date-time
-        - name: query_end
-          in: query
-          required: false
-          schema:
-            type: string
-            format: date-time
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CloudGetBillingResponse'
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
-      security: *ref_0
-  /groups/{group_id}/billing/invoices:
-    get:
-      description: Returns a list of invoices for the given group.
-      operationId: cloud_groups_getInvoicesList
-      tags:
-        - CloudGroups
-      parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: anchor
-          in: query
-          description: >-
-            The pagination anchor. Set to the returned anchor of this endpoint
-            to receive the next set of items.
-          required: false
-          schema:
-            type: string
-        - name: limit
-          in: query
-          description: Amount of invoices to return.
-          required: false
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CloudGetInvoicesListResponse'
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
-      security: *ref_0
-  /groups/{group_id}/billing/payments:
-    get:
-      description: Returns a list of payments for the given group.
-      operationId: cloud_groups_getPaymentsList
-      tags:
-        - CloudGroups
-      parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: start_payment_id
-          in: query
-          description: The payment ID of the payment after which to start listing.
-          required: false
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CloudGetPaymentsListResponse'
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
-      security: *ref_0
-  /groups/{group_id}/billing/transfers:
-    get:
-      description: Returns a list of bank transfers for the given group.
-      operationId: cloud_groups_getTransfersList
-      tags:
-        - CloudGroups
-      parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: start_transfer_id
-          in: query
-          description: The transfer ID of the transfer after which to start listing.
-          required: false
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CloudGetTransfersListResponse'
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
-      security: *ref_0
-  /groups/{group_id}/checkout:
-    post:
-      description: Creates a checkout session for the given group.
-      operationId: cloud_groups_billingCheckout
-      tags:
-        - CloudGroups
-      parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CloudGroupBillingCheckoutResponse'
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
-      security: *ref_0
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CloudGroupBillingCheckoutRequest'
   /groups/{group_id}/convert:
     post:
       description: Converts the given group into a developer group.
@@ -7749,8 +7359,13 @@ paths:
   /lobbies/closed:
     put:
       description: >
-        If `is_closed` is `true`, players will be prevented from joining the
-        lobby.
+        If `is_closed` is `true`, the matchmaker will no longer route players to
+        the lobby. Players can still
+
+        join using the /join endpoint (this can be disabled by the developer by
+        rejecting all new connections
+
+        after setting the lobby to closed).
 
         Does not shutdown the lobby.
       operationId: matchmaker_lobbies_setClosed
@@ -7810,6 +7425,116 @@ paths:
                   type: boolean
               required:
                 - is_closed
+  /lobbies/state:
+    put:
+      operationId: matchmaker_lobbies_setState
+      tags:
+        - MatchmakerLobbies
+      parameters: []
+      responses:
+        '204':
+          description: ''
+        '400':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+        '408':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+        '429':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+        '500':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+      servers:
+        - url: https://matchmaker.api.rivet.gg/v1
+      security: *ref_0
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: {}
+  /lobbies/{lobby_id}/state:
+    get:
+      operationId: matchmaker_lobbies_getState
+      tags:
+        - MatchmakerLobbies
+      parameters:
+        - name: lobby_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema: {}
+        '400':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+        '408':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+        '429':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+        '500':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+      servers:
+        - url: https://matchmaker.api.rivet.gg/v1
+      security: *ref_0
   /lobbies/find:
     post:
       description: |
@@ -7890,6 +7615,7 @@ paths:
                   type: boolean
                 captcha:
                   $ref: '#/components/schemas/CaptchaConfig'
+                verification_data: {}
               required:
                 - game_modes
   /lobbies/join:
@@ -7959,15 +7685,95 @@ paths:
                   type: string
                 captcha:
                   $ref: '#/components/schemas/CaptchaConfig'
+                verification_data: {}
               required:
                 - lobby_id
+  /lobbies/create:
+    post:
+      description: |
+        Creates a custom lobby.
+      operationId: matchmaker_lobbies_create
+      tags:
+        - MatchmakerLobbies
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatchmakerCreateLobbyResponse'
+        '400':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+        '408':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+        '429':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+        '500':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+      servers:
+        - url: https://matchmaker.api.rivet.gg/v1
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                game_mode:
+                  type: string
+                region:
+                  type: string
+                captcha:
+                  $ref: '#/components/schemas/CaptchaConfig'
+                publicity:
+                  $ref: '#/components/schemas/MatchmakerCustomLobbyPublicity'
+                lobby_config: {}
+                verification_data: {}
+              required:
+                - game_mode
+                - publicity
   /lobbies/list:
     get:
       description: Lists all open lobbies.
       operationId: matchmaker_lobbies_list
       tags:
         - MatchmakerLobbies
-      parameters: []
+      parameters:
+        - name: include_state
+          in: query
+          required: false
+          schema:
+            type: boolean
       responses:
         '200':
           description: ''
@@ -8315,1007 +8121,6 @@ paths:
       servers:
         - url: https://matchmaker.api.rivet.gg/v1
       security: *ref_0
-  /parties/self/activity/matchmaker/lobbies/find:
-    post:
-      description: >-
-        Attempts to make the current identity's party find a lobby based on the
-        given criteria. If succeeds, all party members will receive a
-        `GlobalEventMatchmakerLobbyJoin` event with all the information required
-        to join the lobby. This request will use the party player count
-        configured for the lobby group. See `FindLobby`.
-      operationId: party_activity_matchmaker_findLobbyForParty
-      tags:
-        - PartyActivityMatchmaker
-      parameters: []
-      responses:
-        '204':
-          description: ''
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://party.api.rivet.gg/v1
-      security: *ref_0
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: >-
-                #/components/schemas/PartyActivityFindMatchmakerLobbyForPartyRequest
-  /parties/self/activity/matchmaker/lobbies/join:
-    post:
-      description: >-
-        Attempts to make the current identity's party join a specific matchmaker
-        lobby. This request will use the party player count configured for the
-        lobby group. If succeeds, all party members will receive a
-        `GlobalEventMatchmakerLobbyJoin` event with all the information required
-        to join the lobby. Identity must be the party leader. See `JoinLobby`.
-      operationId: party_activity_matchmaker_joinLobbyForParty
-      tags:
-        - PartyActivityMatchmaker
-      parameters: []
-      responses:
-        '204':
-          description: ''
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://party.api.rivet.gg/v1
-      security: *ref_0
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: >-
-                #/components/schemas/PartyActivityJoinMatchmakerLobbyForPartyRequest
-  /parties/self/members/self/matchmaker/request-player:
-    post:
-      operationId: party_activity_matchmaker_requestPlayer
-      tags:
-        - PartyActivityMatchmaker
-      parameters: []
-      responses:
-        '204':
-          description: ''
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://party.api.rivet.gg/v1
-      security: *ref_0
-  /invites:
-    get:
-      description: Fetches a party based on a given invite.
-      operationId: party_parties_getFromInvite
-      tags:
-        - PartyParties
-      parameters:
-        - name: token
-          in: query
-          description: See `rivet.api.party#CreatedInvite$token`.
-          required: false
-          schema:
-            type: string
-        - name: alias
-          in: query
-          description: >-
-            An alias used to join a given party. This alias must be unique for
-            all invites for your game. Pass this alias to
-            `rivet.api.party.common#CreatedInvite$alias` to consume the invite.
-          required: false
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PartyGetInviteResponse'
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://party.api.rivet.gg/v1
-      security: *ref_0
-  /parties:
-    post:
-      description: Creates a new party.
-      operationId: party_parties_create
-      tags:
-        - PartyParties
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PartyCreateResponse'
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://party.api.rivet.gg/v1
-      security: *ref_0
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PartyCreateRequest'
-  /parties/join:
-    post:
-      description: Joins a party using a given party invite.
-      operationId: party_parties_join
-      tags:
-        - PartyParties
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PartyJoinResponse'
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://party.api.rivet.gg/v1
-      security: *ref_0
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PartyJoinRequest'
-  /parties/self/invites:
-    post:
-      description: |-
-        Creates a new party invite for the current identity's party.
-        Identity must be the party leader.
-      operationId: party_parties_createInvite
-      tags:
-        - PartyParties
-      parameters: []
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PartyCreateInviteResponse'
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://party.api.rivet.gg/v1
-      security: *ref_0
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PartyCreateInviteRequest'
-  /parties/self/invites/{invite_id}:
-    delete:
-      description: |-
-        Revokes a party invite from the current identity's party.
-        Identity must be the party leader.
-      operationId: party_parties_revokeInvite
-      tags:
-        - PartyParties
-      parameters:
-        - name: invite_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '204':
-          description: ''
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://party.api.rivet.gg/v1
-      security: *ref_0
-  /parties/self/leave:
-    post:
-      description: Leaves the current identity's party.
-      operationId: party_parties_leave
-      tags:
-        - PartyParties
-      parameters: []
-      responses:
-        '204':
-          description: ''
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://party.api.rivet.gg/v1
-      security: *ref_0
-  /parties/self/members/{identity_id}/kick:
-    post:
-      description: |-
-        Kicks a member from the current identity's current party.
-        Identity must be the party leader.
-      operationId: party_parties_kickMember
-      tags:
-        - PartyParties
-      parameters:
-        - name: identity_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '204':
-          description: ''
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://party.api.rivet.gg/v1
-      security: *ref_0
-  /parties/self/members/{identity_id}/transfer-ownership:
-    post:
-      description: |-
-        Transfers ownership of the party to another party member.
-        Identity must be the party leader.
-      operationId: party_parties_transferOwnership
-      tags:
-        - PartyParties
-      parameters:
-        - name: identity_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '204':
-          description: ''
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://party.api.rivet.gg/v1
-      security: *ref_0
-  /parties/self/profile:
-    get:
-      description: >-
-        Returns a party profile for the party the current identity is a member
-        of.
-      operationId: party_parties_getSelfProfile
-      tags:
-        - PartyParties
-      parameters:
-        - name: watch_index
-          in: query
-          description: A query parameter denoting the requests watch index.
-          required: false
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PartyGetSelfProfileResponse'
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://party.api.rivet.gg/v1
-      security: *ref_0
-  /parties/self/publicity:
-    put:
-      description: |-
-        Sets the publicity of a party.
-        This configures who can view and join the party.
-        Identity must be the party leader.
-      operationId: party_parties_setPublicity
-      tags:
-        - PartyParties
-      parameters: []
-      responses:
-        '204':
-          description: ''
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://party.api.rivet.gg/v1
-      security: *ref_0
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PartySetPublicityRequest'
-  /parties/self/summary:
-    get:
-      description: >-
-        Returns a party summary for the party the current identity is a member
-        of.
-      operationId: party_parties_getSelfSummary
-      tags:
-        - PartyParties
-      parameters:
-        - name: watch_index
-          in: query
-          description: A query parameter denoting the requests watch index.
-          required: false
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PartyGetSelfSummaryResponse'
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://party.api.rivet.gg/v1
-      security: *ref_0
-  /parties/{party_id}/join-request/send:
-    post:
-      operationId: party_parties_sendJoinRequest
-      tags:
-        - PartyParties
-      parameters:
-        - name: party_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '204':
-          description: ''
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://party.api.rivet.gg/v1
-      security: *ref_0
-  /parties/{party_id}/profile:
-    get:
-      description: Returns a party profile.
-      operationId: party_parties_getProfile
-      tags:
-        - PartyParties
-      parameters:
-        - name: party_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: watch_index
-          in: query
-          description: A query parameter denoting the requests watch index.
-          required: false
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PartyGetProfileResponse'
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://party.api.rivet.gg/v1
-      security: *ref_0
-  /parties/{party_id}/summary:
-    get:
-      description: Returns a party summary.
-      operationId: party_parties_getSummary
-      tags:
-        - PartyParties
-      parameters:
-        - name: party_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: watch_index
-          in: query
-          description: A query parameter denoting the requests watch index.
-          required: false
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PartyGetSummaryResponse'
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://party.api.rivet.gg/v1
-      security: *ref_0
 components:
   schemas:
     ChatSendMessageRequest:
@@ -9620,6 +8425,8 @@ components:
       type: object
       description: Cloud configuration for a given version.
       properties:
+        engine:
+          $ref: '#/components/schemas/CloudVersionEngineConfig'
         cdn:
           $ref: '#/components/schemas/CloudVersionCdnConfig'
         matchmaker:
@@ -9673,10 +8480,10 @@ components:
       properties:
         build_command:
           type: string
-          description: Client-side configuration
+          description: _Configures Rivet CLI behavior. Has no effect on server behavior._
         build_output:
           type: string
-          description: Client-side configuration
+          description: _Configures Rivet CLI behavior. Has no effect on server behavior._
         site_id:
           type: string
           format: uuid
@@ -9733,6 +8540,17 @@ components:
       required:
         - name
         - value
+    CloudVersionEngineConfig:
+      type: object
+      properties:
+        unity:
+          $ref: '#/components/schemas/CloudVersionEngineUnityConfig'
+        unreal:
+          $ref: '#/components/schemas/CloudVersionEngineUnrealConfig'
+        godot:
+          $ref: '#/components/schemas/CloudVersionEngineGodotConfig'
+        html5:
+          $ref: '#/components/schemas/CloudVersionEngineHtml5Config'
     CloudVersionKvConfig:
       type: object
       description: KV configuration for a given version.
@@ -9750,7 +8568,7 @@ components:
           $ref: '#/components/schemas/CloudVersionMatchmakerCaptcha'
         dev_hostname:
           type: string
-          description: Client-side configuration
+          description: _Configures Rivet CLI behavior. Has no effect on server behavior._
         regions:
           type: object
           additionalProperties:
@@ -10170,6 +8988,12 @@ components:
             $ref: '#/components/schemas/KvPutEntry'
       required:
         - entries
+    ModuleCallResponse:
+      type: object
+      properties:
+        data: {}
+      required:
+        - data
     CaptchaConfig:
       type: object
       description: Methods to verify a captcha
@@ -10204,9 +9028,6 @@ components:
         group_id:
           type: string
           format: uuid
-        party_id:
-          type: string
-          format: uuid
         identity_id:
           type: string
           format: uuid
@@ -10216,8 +9037,6 @@ components:
       properties:
         text:
           $ref: '#/components/schemas/ChatSendMessageBodyText'
-        party_invite:
-          $ref: '#/components/schemas/ChatSendMessageBodyPartyInvite'
     ChatSendMessageBodyText:
       type: object
       description: The text in the text message.
@@ -10226,13 +9045,6 @@ components:
           type: string
       required:
         - body
-    ChatSendMessageBodyPartyInvite:
-      type: object
-      properties:
-        token:
-          $ref: '#/components/schemas/Jwt'
-      required:
-        - token
     ChatQueryDirection:
       type: string
       enum:
@@ -10305,16 +9117,6 @@ components:
           $ref: '#/components/schemas/ChatMessageBodyGroupLeave'
         group_member_kick:
           $ref: '#/components/schemas/ChatMessageBodyGroupMemberKick'
-        party_invite:
-          $ref: '#/components/schemas/ChatMessageBodyPartyInvite'
-        party_join_request:
-          $ref: '#/components/schemas/ChatMessageBodyPartyJoinRequest'
-        party_join:
-          $ref: '#/components/schemas/ChatMessageBodyPartyJoin'
-        party_leave:
-          $ref: '#/components/schemas/ChatMessageBodyPartyLeave'
-        party_activity_change:
-          $ref: '#/components/schemas/ChatMessageBodyPartyActivityChange'
     ChatMessageBodyText:
       type: object
       properties:
@@ -10359,49 +9161,12 @@ components:
           $ref: '#/components/schemas/IdentityHandle'
       required:
         - identity
-    ChatMessageBodyPartyInvite:
-      type: object
-      properties:
-        sender:
-          $ref: '#/components/schemas/IdentityHandle'
-        party:
-          $ref: '#/components/schemas/PartyHandle'
-        invite_token:
-          $ref: '#/components/schemas/Jwt'
-      required:
-        - sender
-    ChatMessageBodyPartyJoinRequest:
-      type: object
-      properties:
-        sender:
-          $ref: '#/components/schemas/IdentityHandle'
-      required:
-        - sender
-    ChatMessageBodyPartyJoin:
-      type: object
-      properties:
-        identity:
-          $ref: '#/components/schemas/IdentityHandle'
-      required:
-        - identity
-    ChatMessageBodyPartyLeave:
-      type: object
-      properties:
-        identity:
-          $ref: '#/components/schemas/IdentityHandle'
-      required:
-        - identity
-    ChatMessageBodyPartyActivityChange:
-      type: object
-      properties: {}
     ChatTopic:
       type: object
       description: Represents the topic of the given chat thread.
       properties:
         group:
           $ref: '#/components/schemas/ChatTopicGroup'
-        party:
-          $ref: '#/components/schemas/ChatTopicParty'
         direct:
           $ref: '#/components/schemas/ChatTopicDirect'
     ChatTopicGroup:
@@ -10411,13 +9176,6 @@ components:
           $ref: '#/components/schemas/GroupHandle'
       required:
         - group
-    ChatTopicParty:
-      type: object
-      properties:
-        party:
-          $ref: '#/components/schemas/PartyHandle'
-      required:
-        - party
     ChatTopicDirect:
       type: object
       properties:
@@ -10438,8 +9196,6 @@ components:
       properties:
         group:
           $ref: '#/components/schemas/ChatSimpleTopicGroup'
-        party:
-          $ref: '#/components/schemas/ChatSimpleTopicParty'
         direct:
           $ref: '#/components/schemas/ChatSimpleTopicDirect'
     ChatSimpleTopicGroup:
@@ -10450,14 +9206,6 @@ components:
           format: uuid
       required:
         - group
-    ChatSimpleTopicParty:
-      type: object
-      properties:
-        party:
-          type: string
-          format: uuid
-      required:
-        - party
     ChatSimpleTopicDirect:
       type: object
       properties:
@@ -10996,171 +9744,6 @@ components:
         - universal_region
         - provider_display_name
         - region_display_name
-    CloudGroupBillingSummary:
-      type: object
-      description: A group billing summary.
-      properties:
-        games:
-          type: array
-          items:
-            $ref: '#/components/schemas/CloudGameLobbyExpenses'
-          description: A list of multiple game lobby expenses.
-        balance:
-          type: number
-          format: double
-          description: A group's available balance.
-      required:
-        - games
-        - balance
-    CloudGameLobbyExpenses:
-      type: object
-      description: Game lobby expenses.
-      properties:
-        game:
-          $ref: '#/components/schemas/GameHandle'
-        namespaces:
-          type: array
-          items:
-            $ref: '#/components/schemas/CloudNamespaceSummary'
-          description: A list of namespace summaries.
-        expenses:
-          type: array
-          items:
-            $ref: '#/components/schemas/CloudRegionTierExpenses'
-          description: A list of multiple region tier expenses.
-      required:
-        - game
-        - namespaces
-        - expenses
-    CloudRegionTierExpenses:
-      type: object
-      description: Region tier expenses.
-      properties:
-        namespace_id:
-          type: string
-          format: uuid
-        region_id:
-          type: string
-          format: uuid
-        tier_name_id:
-          type: string
-          description: >-
-            A human readable short identifier used to references resources.
-            Different than a `rivet.common#Uuid` because this is intended to be
-            human readable. Different than `rivet.common#DisplayName` because
-            this should not include special characters and be short.
-        lobby_group_name_id:
-          type: string
-          description: >-
-            A human readable short identifier used to references resources.
-            Different than a `rivet.common#Uuid` because this is intended to be
-            human readable. Different than `rivet.common#DisplayName` because
-            this should not include special characters and be short.
-        uptime:
-          type: number
-          format: double
-          description: How long a region tier has been active (in milliseconds).
-        expenses:
-          type: number
-          format: double
-          description: >-
-            Amount of expenses for this region tier (in hundred-thousandths USD,
-            100,000 = $1.00).
-      required:
-        - namespace_id
-        - region_id
-        - tier_name_id
-        - lobby_group_name_id
-        - uptime
-        - expenses
-    CloudGroupBankSource:
-      type: object
-      properties:
-        account_number:
-          type: string
-          description: The bank account number of this group's bank source.
-        routing_number:
-          type: string
-          description: The bank routing number of this group's bank source.
-      required:
-        - account_number
-        - routing_number
-    CloudGroupBillingInvoice:
-      type: object
-      description: A group's billing invoice.
-      properties:
-        csv_url:
-          type: string
-          description: A URL to this invoice's CSV breakdown.
-        pdf_url:
-          type: string
-          description: A URL to this invoice's PDF document.
-        period_start_ts:
-          type: string
-          format: date-time
-          description: RFC3339 timestamp.
-        period_end_ts:
-          type: string
-          format: date-time
-          description: RFC3339 timestamp.
-      required:
-        - csv_url
-        - pdf_url
-        - period_start_ts
-        - period_end_ts
-    CloudGroupBillingPayment:
-      type: object
-      description: A group's billing payment.
-      properties:
-        amount:
-          type: number
-          format: double
-          description: Payment amount (in hundreths USD, 100 = $1.00).
-        description:
-          type: string
-          description: A description of this payment.
-        from_invoice:
-          type: boolean
-          description: Whether or not this payment is from an invoice.
-        created_ts:
-          type: string
-          format: date-time
-          description: RFC3339 timestamp.
-        status:
-          $ref: '#/components/schemas/CloudGroupBillingStatus'
-      required:
-        - amount
-        - from_invoice
-        - created_ts
-        - status
-    CloudGroupBillingStatus:
-      type: string
-      enum:
-        - succeeded
-        - processing
-        - refunded
-      description: A value denoting the status of a billing transfer.
-    CloudGroupBillingTransfer:
-      type: object
-      description: A group's billing transfer.
-      properties:
-        amount:
-          type: integer
-          format: int64
-          description: Payment amount (in hundreths USD, 100 = $1.00).
-        description:
-          type: string
-          description: A description of this transfer.
-        created_ts:
-          type: string
-          format: date-time
-          description: RFC3339 timestamp.
-        status:
-          $ref: '#/components/schemas/CloudGroupBillingStatus'
-      required:
-        - amount
-        - created_ts
-        - status
     CloudRegionTier:
       type: object
       description: A region server tier.
@@ -11415,389 +9998,6 @@ components:
         - namespace_id
         - version_id
         - deploy_ts
-    CloudNamespaceAnalyticsDataSet:
-      type: object
-      properties:
-        matchmaker_overview:
-          $ref: '#/components/schemas/CloudMatchmakerOverviewDataSet'
-        player_count:
-          $ref: '#/components/schemas/CloudPlayerCountDataSet'
-        player_count_by_region:
-          $ref: '#/components/schemas/CloudPlayerCountByRegionDataSet'
-        player_count_by_game_mode:
-          $ref: '#/components/schemas/CloudPlayerCountByGameModeDataSet'
-        lobby_count:
-          $ref: '#/components/schemas/CloudLobbyCountDataSet'
-        lobby_count_by_region:
-          $ref: '#/components/schemas/CloudLobbyCountByRegionDataSet'
-        lobby_count_by_game_mode:
-          $ref: '#/components/schemas/CloudLobbyCountByGameModeDataSet'
-        avg_play_duration:
-          $ref: '#/components/schemas/CloudAvgPlayDurationDataSet'
-        avg_play_duration_by_region:
-          $ref: '#/components/schemas/CloudAvgPlayDurationByRegionDataSet'
-        avg_play_duration_by_game_mode:
-          $ref: '#/components/schemas/CloudAvgPlayDurationByGameModeDataSet'
-        new_players_per_second:
-          $ref: '#/components/schemas/CloudNewPlayersPerSecondDataSet'
-        new_lobbies_per_second:
-          $ref: '#/components/schemas/CloudNewLobbiesPerSecondDataSet'
-        destroyed_lobbies_by_failure:
-          $ref: '#/components/schemas/CloudDestroyedLobbiesByFailureDataSet'
-        destroyed_lobbies_by_exit_code:
-          $ref: '#/components/schemas/CloudDestroyedLobbiesByExitCodeDataSet'
-        failed_lobbies:
-          $ref: '#/components/schemas/CloudFailedLobbiesDataSet'
-        lobby_ready_time:
-          $ref: '#/components/schemas/CloudLobbyReadyTimeDataSet'
-        identity_accounts:
-          $ref: '#/components/schemas/CloudIdentityAccountsDataSet'
-    CloudMatchmakerOverviewDataSet:
-      type: object
-      properties:
-        player_count:
-          type: integer
-          format: int64
-        lobby_count:
-          type: integer
-          format: int64
-      required:
-        - player_count
-        - lobby_count
-    CloudPlayerCountDataSet:
-      type: object
-      properties:
-        ts:
-          type: array
-          items:
-            type: integer
-            format: int64
-        player_count:
-          type: array
-          items:
-            type: integer
-            format: int64
-        player_unready_count:
-          type: array
-          items:
-            type: integer
-            format: int64
-      required:
-        - ts
-        - player_count
-        - player_unready_count
-    CloudPlayerCountByRegionDataSet:
-      type: object
-      properties:
-        ts:
-          type: array
-          items:
-            type: integer
-            format: int64
-        region_name_id:
-          type: array
-          items:
-            type: string
-        player_count:
-          type: array
-          items:
-            type: integer
-            format: int64
-      required:
-        - ts
-        - region_name_id
-        - player_count
-    CloudPlayerCountByGameModeDataSet:
-      type: object
-      properties:
-        ts:
-          type: array
-          items:
-            type: integer
-            format: int64
-        game_mode_name_id:
-          type: array
-          items:
-            type: string
-        player_count:
-          type: array
-          items:
-            type: integer
-            format: int64
-      required:
-        - ts
-        - game_mode_name_id
-        - player_count
-    CloudLobbyCountDataSet:
-      type: object
-      properties:
-        ts:
-          type: array
-          items:
-            type: integer
-            format: int64
-        lobby_count:
-          type: array
-          items:
-            type: integer
-            format: int64
-        lobby_preemptive_count:
-          type: array
-          items:
-            type: integer
-            format: int64
-        lobby_unready_count:
-          type: array
-          items:
-            type: integer
-            format: int64
-        lobby_closed_count:
-          type: array
-          items:
-            type: integer
-            format: int64
-      required:
-        - ts
-        - lobby_count
-        - lobby_preemptive_count
-        - lobby_unready_count
-        - lobby_closed_count
-    CloudLobbyCountByRegionDataSet:
-      type: object
-      properties:
-        ts:
-          type: array
-          items:
-            type: integer
-            format: int64
-        region_name_id:
-          type: array
-          items:
-            type: string
-        lobby_count:
-          type: array
-          items:
-            type: integer
-            format: int64
-      required:
-        - ts
-        - region_name_id
-        - lobby_count
-    CloudLobbyCountByGameModeDataSet:
-      type: object
-      properties:
-        ts:
-          type: array
-          items:
-            type: integer
-            format: int64
-        game_mode_name_id:
-          type: array
-          items:
-            type: string
-        lobby_count:
-          type: array
-          items:
-            type: integer
-            format: int64
-      required:
-        - ts
-        - game_mode_name_id
-        - lobby_count
-    CloudAvgPlayDurationDataSet:
-      type: object
-      properties:
-        ts:
-          type: array
-          items:
-            type: integer
-            format: int64
-        duration:
-          type: array
-          items:
-            type: integer
-            format: int64
-      required:
-        - ts
-        - duration
-    CloudAvgPlayDurationByRegionDataSet:
-      type: object
-      properties:
-        region_name_id:
-          type: array
-          items:
-            type: string
-        duration:
-          type: array
-          items:
-            type: integer
-            format: int64
-      required:
-        - region_name_id
-        - duration
-    CloudAvgPlayDurationByGameModeDataSet:
-      type: object
-      properties:
-        game_mode_name_id:
-          type: array
-          items:
-            type: string
-        duration:
-          type: array
-          items:
-            type: integer
-            format: int64
-      required:
-        - game_mode_name_id
-        - duration
-    CloudNewPlayersPerSecondDataSet:
-      type: object
-      properties:
-        ts:
-          type: array
-          items:
-            type: integer
-            format: int64
-        new_player_count:
-          type: array
-          items:
-            type: integer
-            format: int64
-      required:
-        - ts
-        - new_player_count
-    CloudNewLobbiesPerSecondDataSet:
-      type: object
-      properties:
-        ts:
-          type: array
-          items:
-            type: integer
-            format: int64
-        new_lobby_count:
-          type: array
-          items:
-            type: integer
-            format: int64
-      required:
-        - ts
-        - new_lobby_count
-    CloudDestroyedLobbiesByFailureDataSet:
-      type: object
-      properties:
-        ts:
-          type: array
-          items:
-            type: integer
-            format: int64
-        failed:
-          type: array
-          items:
-            type: boolean
-        destroyed_lobby_count:
-          type: array
-          items:
-            type: integer
-            format: int64
-      required:
-        - ts
-        - failed
-        - destroyed_lobby_count
-    CloudDestroyedLobbiesByExitCodeDataSet:
-      type: object
-      properties:
-        ts:
-          type: array
-          items:
-            type: integer
-            format: int64
-        exit_code:
-          type: array
-          items:
-            type: integer
-        destroyed_lobby_count:
-          type: array
-          items:
-            type: integer
-            format: int64
-      required:
-        - ts
-        - exit_code
-        - destroyed_lobby_count
-    CloudFailedLobbiesDataSet:
-      type: object
-      properties:
-        ts:
-          type: array
-          items:
-            type: integer
-            format: int64
-        destroyed_lobby_count:
-          type: array
-          items:
-            type: integer
-            format: int64
-      required:
-        - ts
-        - destroyed_lobby_count
-    CloudLobbyReadyTimeDataSet:
-      type: object
-      properties:
-        ts:
-          type: array
-          items:
-            type: integer
-            format: int64
-        ready_duration:
-          type: array
-          items:
-            type: integer
-            format: int64
-      required:
-        - ts
-        - ready_duration
-    CloudIdentityAccountsDataSet:
-      type: object
-      properties:
-        ts:
-          type: array
-          items:
-            type: integer
-            format: int64
-        total_account_count:
-          type: array
-          items:
-            type: integer
-            format: int64
-        registered_account_count:
-          type: array
-          items:
-            type: integer
-            format: int64
-      required:
-        - ts
-        - total_account_count
-        - registered_account_count
-    CloudAnalyticsVariantQuery:
-      type: string
-      enum:
-        - matchmaker_overview
-        - player_count
-        - player_count_by_region
-        - player_count_by_game_mode
-        - lobby_count
-        - lobby_count_by_region
-        - lobby_count_by_game_mode
-        - avg_play_duration
-        - avg_play_duration_by_region
-        - avg_play_duration_by_game_mode
-        - new_players_per_second
-        - new_lobbies_per_second
-        - destroyed_lobbies_by_failure
-        - destroyed_lobbies_by_exit_code
-        - failed_lobbies
-        - lobby_ready_time
-        - identity_accounts
     CloudDevicesPrepareDeviceLinkResponse:
       type: object
       properties:
@@ -11878,6 +10078,8 @@ components:
           description: A tag given to the game build.
         image_file:
           $ref: '#/components/schemas/UploadPrepareFile'
+        multipart_upload:
+          type: boolean
       required:
         - display_name
         - image_tag
@@ -11893,10 +10095,13 @@ components:
           format: uuid
         image_presigned_request:
           $ref: '#/components/schemas/UploadPresignedRequest'
+        image_presigned_requests:
+          type: array
+          items:
+            $ref: '#/components/schemas/UploadPresignedRequest'
       required:
         - build_id
         - upload_id
-        - image_presigned_request
     CloudGamesListGameCdnSitesResponse:
       type: object
       properties:
@@ -12074,15 +10279,6 @@ components:
       required:
         - upload_id
         - presigned_request
-    CloudGamesGetAnalyticsResponse:
-      type: object
-      properties:
-        data_sets:
-          type: array
-          items:
-            $ref: '#/components/schemas/CloudNamespaceAnalyticsDataSet'
-      required:
-        - data_sets
     CloudGamesGameSummary:
       type: object
       description: A game summary.
@@ -12318,78 +10514,6 @@ components:
           description: A list of validation errors.
       required:
         - errors
-    CloudGetBillingResponse:
-      type: object
-      properties:
-        billing:
-          $ref: '#/components/schemas/CloudGroupBillingSummary'
-        bank_source:
-          $ref: '#/components/schemas/CloudGroupBankSource'
-        available_regions:
-          type: array
-          items:
-            $ref: '#/components/schemas/CloudRegionSummary'
-          description: A list of region summaries.
-      required:
-        - billing
-        - bank_source
-        - available_regions
-    CloudGetInvoicesListResponse:
-      type: object
-      properties:
-        invoices:
-          type: array
-          items:
-            $ref: '#/components/schemas/CloudGroupBillingInvoice'
-          description: A list of a group's billing invoices.
-        anchor:
-          type: string
-          description: The pagination anchor.
-      required:
-        - invoices
-    CloudGetPaymentsListResponse:
-      type: object
-      properties:
-        payments:
-          type: array
-          items:
-            $ref: '#/components/schemas/CloudGroupBillingPayment'
-          description: A list of a group's billing payments.
-        end_payment_id:
-          type: string
-          description: The ID of the last payment listed.
-      required:
-        - payments
-    CloudGetTransfersListResponse:
-      type: object
-      properties:
-        transfers:
-          type: array
-          items:
-            $ref: '#/components/schemas/CloudGroupBillingTransfer'
-          description: A list of a group's billing transfers.
-        end_transfer_id:
-          type: string
-          description: The ID of the last transfer listed.
-      required:
-        - transfers
-    CloudGroupBillingCheckoutRequest:
-      type: object
-      properties:
-        amount:
-          type: integer
-          format: int64
-          description: >-
-            How much money to checkout (in hundred-thousandths USD, 100,000 =
-            $1.00).
-    CloudGroupBillingCheckoutResponse:
-      type: object
-      properties:
-        url:
-          type: string
-          description: The URL of the checkout session.
-      required:
-        - url
     CloudGetRayPerfLogsResponse:
       type: object
       properties:
@@ -12410,6 +10534,29 @@ components:
           description: A list of region server tiers.
       required:
         - tiers
+    CloudVersionEngineGodotConfig:
+      type: object
+      properties: {}
+    CloudVersionEngineHtml5Config:
+      type: object
+      properties: {}
+    CloudVersionEngineUnityConfig:
+      type: object
+      properties: {}
+    CloudVersionEngineUnrealConfig:
+      type: object
+      properties:
+        game_module:
+          type: string
+          description: >-
+            Name of the Unreal module that holds the game code.
+
+            This is usually the value of `$.Modules[0].Name` in the file
+            `MyProject.unproject`.
+
+            _Configures Rivet CLI behavior. Has no effect on server behavior._
+      required:
+        - game_module
     CloudVersionIdentityConfig:
       type: object
       description: Identity configuration for a given version.
@@ -12492,6 +10639,8 @@ components:
             having to reverify a captcha (in milliseconds).
         hcaptcha:
           $ref: '#/components/schemas/CloudVersionMatchmakerCaptchaHcaptcha'
+        turnstile:
+          $ref: '#/components/schemas/CloudVersionMatchmakerCaptchaTurnstile'
       required:
         - requests_before_reverify
         - verification_ttl
@@ -12511,6 +10660,24 @@ components:
         - difficult
         - always_on
       description: How hard a captcha should be.
+    CloudVersionMatchmakerCaptchaTurnstile:
+      type: object
+      description: Turnstile captcha configuration.
+      properties:
+        domains:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/CloudVersionMatchmakerCaptchaTurnstileDomain'
+      required:
+        - domains
+    CloudVersionMatchmakerCaptchaTurnstileDomain:
+      type: object
+      description: Turnstile domain configuration.
+      properties:
+        secret_key:
+          type: string
+      required:
+        - secret_key
     CloudVersionMatchmakerNetworkMode:
       type: string
       enum:
@@ -12532,6 +10699,14 @@ components:
           type: integer
         docker:
           $ref: '#/components/schemas/CloudVersionMatchmakerGameModeRuntimeDocker'
+        listable:
+          type: boolean
+        find_config:
+          $ref: '#/components/schemas/CloudVersionMatchmakerGameModeFindConfig'
+        join_config:
+          $ref: '#/components/schemas/CloudVersionMatchmakerGameModeJoinConfig'
+        create_config:
+          $ref: '#/components/schemas/CloudVersionMatchmakerGameModeCreateConfig'
         tier:
           type: string
         idle_lobbies:
@@ -12550,10 +10725,10 @@ components:
       properties:
         dockerfile:
           type: string
-          description: Client-side configuration
+          description: _Configures Rivet CLI behavior. Has no effect on server behavior._
         image:
           type: string
-          description: Client-side configuration
+          description: _Configures Rivet CLI behavior. Has no effect on server behavior._
         image_id:
           type: string
           format: uuid
@@ -12588,13 +10763,13 @@ components:
           description: How this port should be proxied. Defaults to 'game-guard`.
         dev_port:
           type: integer
-          description: Client-side configuration
+          description: _Configures Rivet CLI behavior. Has no effect on server behavior._
         dev_port_range:
           $ref: '#/components/schemas/CloudVersionMatchmakerPortRange'
-          description: Client-side configuration
+          description: _Configures Rivet CLI behavior. Has no effect on server behavior._
         dev_protocol:
           $ref: '#/components/schemas/CloudVersionMatchmakerPortProtocol'
-          description: Client-side configuration
+          description: _Configures Rivet CLI behavior. Has no effect on server behavior._
     CloudVersionMatchmakerGameModeIdleLobbiesConfig:
       type: object
       description: Configuration for how many idle lobbies a game version should have.
@@ -12606,6 +10781,95 @@ components:
       required:
         - min
         - max
+    CloudVersionMatchmakerGameModeIdentityRequirement:
+      type: string
+      enum:
+        - none
+        - guest
+        - registered
+      description: >-
+        The registration requirement for a user when joining/finding/creating a
+        lobby. "None" allows for connections without an identity.
+    CloudVersionMatchmakerGameModeVerificationConfig:
+      type: object
+      description: >-
+        Configuration that tells Rivet where to send validation requests and
+        with what headers. When set, Rivet will send the `verification_data`
+        property (given by the user in the find/join/create endpoint) to the
+        given url along with the headers provided and some information about the
+        requested lobby. The response of this request will determine if the user
+        can join that lobby or not.
+      properties:
+        url:
+          type: string
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+      required:
+        - url
+        - headers
+    CloudVersionMatchmakerGameModeFindConfig:
+      type: object
+      description: >-
+        Configures the requirements and authentication for the /find endpoint.
+        If this value is not set in the config, the /find endpoint is still
+        enabled.
+      properties:
+        enabled:
+          type: boolean
+          description: Sets whether or not the /find endpoint is enabled.
+        identity_requirement:
+          $ref: >-
+            #/components/schemas/CloudVersionMatchmakerGameModeIdentityRequirement
+        verification_config:
+          $ref: >-
+            #/components/schemas/CloudVersionMatchmakerGameModeVerificationConfig
+      required:
+        - enabled
+        - identity_requirement
+    CloudVersionMatchmakerGameModeJoinConfig:
+      type: object
+      description: >-
+        Configures the requirements and authentication for the /join endpoint.
+        If this value is not set in the config, the /join endpoint is still
+        enabled.
+      properties:
+        enabled:
+          type: boolean
+          description: Sets whether or not the /join endpoint is enabled.
+        identity_requirement:
+          $ref: >-
+            #/components/schemas/CloudVersionMatchmakerGameModeIdentityRequirement
+        verification_config:
+          $ref: >-
+            #/components/schemas/CloudVersionMatchmakerGameModeVerificationConfig
+      required:
+        - enabled
+        - identity_requirement
+    CloudVersionMatchmakerGameModeCreateConfig:
+      type: object
+      description: >-
+        Configures the requirements and authentication for the /create endpoint.
+        If this value is not set in the config, the /create endpoint is NOT
+        enabled.
+      properties:
+        identity_requirement:
+          $ref: >-
+            #/components/schemas/CloudVersionMatchmakerGameModeIdentityRequirement
+        verification_config:
+          $ref: >-
+            #/components/schemas/CloudVersionMatchmakerGameModeVerificationConfig
+        enable_public:
+          type: boolean
+        enable_private:
+          type: boolean
+        max_lobbies_per_identity:
+          type: integer
+      required:
+        - identity_requirement
+        - enable_public
+        - enable_private
     CloudVersionMatchmakerLobbyGroup:
       type: object
       description: A game mode.
@@ -13188,8 +11452,6 @@ components:
           $ref: '#/components/schemas/IdentityGlobalEventChatMessage'
         chat_read:
           $ref: '#/components/schemas/IdentityGlobalEventChatRead'
-        party_update:
-          $ref: '#/components/schemas/IdentityGlobalEventPartyUpdate'
         identity_update:
           $ref: '#/components/schemas/IdentityGlobalEventIdentityUpdate'
         matchmaker_lobby_join:
@@ -13274,11 +11536,6 @@ components:
       required:
         - thread_id
         - read_ts
-    IdentityGlobalEventPartyUpdate:
-      type: object
-      properties:
-        party:
-          $ref: '#/components/schemas/PartySummary'
     IdentityGlobalEventIdentityUpdate:
       type: object
       properties:
@@ -13327,9 +11584,6 @@ components:
           description: >-
             JSON data seen only by the given identity and their mutual
             followers.
-      required:
-        - public_metadata
-        - mutual_metadata
     IdentityHandle:
       type: object
       description: An identity handle.
@@ -13346,8 +11600,6 @@ components:
           description: The URL of this identity's avatar image.
         presence:
           $ref: '#/components/schemas/IdentityPresence'
-        party:
-          $ref: '#/components/schemas/PartyHandle'
         is_registered:
           type: boolean
           description: Whether or not this identity is registered with a linked account.
@@ -13376,8 +11628,6 @@ components:
           description: The URL of this identity's avatar image.
         presence:
           $ref: '#/components/schemas/IdentityPresence'
-        party:
-          $ref: '#/components/schemas/PartyHandle'
         is_registered:
           type: boolean
           description: Whether or not this identity is registered with a linked account.
@@ -13419,9 +11669,6 @@ components:
           description: The URL of this identity's avatar image.
         presence:
           $ref: '#/components/schemas/IdentityPresence'
-        party:
-          $ref: '#/components/schemas/PartySummary'
-          description: Whether or not this identity is registered with a linked account.
         is_registered:
           type: boolean
           description: Whether or not this identity is registered with a linked account.
@@ -13553,8 +11800,6 @@ components:
       required:
         - game
         - message
-        - public_metadata
-        - mutual_metadata
     IdentityGroup:
       type: object
       description: A group that the given identity.
@@ -13563,13 +11808,6 @@ components:
           $ref: '#/components/schemas/GroupHandle'
       required:
         - group
-    IdentityDevState:
-      type: string
-      enum:
-        - inactive
-        - pending
-        - accepted
-      description: The state of the given identity's developer status.
     IdentityLinkedAccount:
       type: object
       description: A union representing an identity's linked accounts.
@@ -13584,6 +11822,13 @@ components:
           $ref: '#/components/schemas/Email'
       required:
         - email
+    IdentityDevState:
+      type: string
+      enum:
+        - inactive
+        - pending
+        - accepted
+      description: The state of the given identity's developer status.
     IdentityGameLinkStatus:
       type: string
       enum:
@@ -13714,6 +11959,7 @@ components:
           type: integer
         total_player_count:
           type: integer
+        state: {}
       required:
         - region_id
         - game_mode_id
@@ -13830,6 +12076,11 @@ components:
             server will validate this token with `PlayerConnected.player_token`
       required:
         - token
+    MatchmakerCustomLobbyPublicity:
+      type: string
+      enum:
+        - public
+        - private
     MatchmakerFindLobbyResponse:
       type: object
       properties:
@@ -13846,6 +12097,21 @@ components:
         - ports
         - player
     MatchmakerJoinLobbyResponse:
+      type: object
+      properties:
+        lobby:
+          $ref: '#/components/schemas/MatchmakerJoinLobby'
+        ports:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/MatchmakerJoinPort'
+        player:
+          $ref: '#/components/schemas/MatchmakerJoinPlayer'
+      required:
+        - lobby
+        - ports
+        - player
+    MatchmakerCreateLobbyResponse:
       type: object
       properties:
         lobby:
@@ -13922,487 +12188,6 @@ components:
             $ref: '#/components/schemas/MatchmakerRegionInfo'
       required:
         - regions
-    PartyActivityFindMatchmakerLobbyForPartyRequest:
-      type: object
-      properties:
-        game_modes:
-          type: array
-          items:
-            type: string
-          description: Game modes to match lobbies against.
-        regions:
-          type: array
-          items:
-            type: string
-          description: >-
-            Regions to match lobbies against. If not specified, the optimal
-            region
-
-            will be determined and will attempt to find lobbies in that region.
-        prevent_auto_create_lobby:
-          type: boolean
-          description: |-
-            Prevents a new lobby from being created when finding a lobby. If no
-            lobby is found, `MATCHMAKER_LOBBY_NOT_FOUND` will be returned.
-        captcha:
-          $ref: '#/components/schemas/CaptchaConfig'
-      required:
-        - game_modes
-    PartyActivityJoinMatchmakerLobbyForPartyRequest:
-      type: object
-      properties:
-        lobby_id:
-          type: string
-          format: uuid
-        captcha:
-          $ref: '#/components/schemas/CaptchaConfig'
-      required:
-        - lobby_id
-    PartyCreatePublicityConfig:
-      type: object
-      description: |-
-        Publicity configuration for creating a party.
-        Null values will default
-      properties:
-        public:
-          $ref: '#/components/schemas/PartyPublicityLevel'
-        mutual_followers:
-          $ref: '#/components/schemas/PartyPublicityLevel'
-        groups:
-          $ref: '#/components/schemas/PartyPublicityLevel'
-    PartyCreateInviteConfig:
-      type: object
-      description: Configuration for creating a party invite.
-      properties:
-        alias:
-          type: string
-          description: >-
-            An alias used to join a given party. This alias must be unique for
-            all invites for your game. Pass this alias to
-            `rivet.api.party.common#CreatedInvite$alias` to consume the invite.
-    PartyCreatedInvite:
-      type: object
-      description: Output from a created invite.
-      properties:
-        alias:
-          type: string
-          description: >-
-            An alias used to join a given party. This alias must be unique for
-            all invites for your game. Pass this alias to
-            `rivet.api.party.common#CreatedInvite$alias` to consume the invite.
-        token:
-          type: string
-          description: >-
-            A JSON Web Token.
-
-            Slightly modified to include a description prefix and use Protobufs
-            of
-
-            JSON.
-      required:
-        - token
-    PartyJoinInvite:
-      type: object
-      description: Represents methods of joining a party.
-      properties:
-        party_id:
-          type: string
-          format: uuid
-        token:
-          $ref: '#/components/schemas/Jwt'
-        alias:
-          type: string
-    PartySummary:
-      type: object
-      properties:
-        party_id:
-          type: string
-          format: uuid
-        create_ts:
-          type: string
-          format: date-time
-        activity:
-          $ref: '#/components/schemas/PartyActivity'
-        external:
-          $ref: '#/components/schemas/PartyExternalLinks'
-        publicity:
-          $ref: '#/components/schemas/PartyPublicity'
-        party_size:
-          type: integer
-        members:
-          type: array
-          items:
-            $ref: '#/components/schemas/PartyMemberSummary'
-        thread_id:
-          type: string
-          format: uuid
-      required:
-        - party_id
-        - create_ts
-        - activity
-        - external
-        - publicity
-        - party_size
-        - members
-        - thread_id
-    PartyHandle:
-      type: object
-      properties:
-        party_id:
-          type: string
-          format: uuid
-        create_ts:
-          type: string
-          format: date-time
-        activity:
-          $ref: '#/components/schemas/PartyActivity'
-        external:
-          $ref: '#/components/schemas/PartyExternalLinks'
-      required:
-        - party_id
-        - create_ts
-        - activity
-        - external
-    PartyActivity:
-      type: object
-      description: A union representing the activity of a given party.
-      properties:
-        idle:
-          $ref: '#/components/schemas/EmptyObject'
-          description: A party activity denoting that the party is idle.
-        matchmaker_finding_lobby:
-          $ref: '#/components/schemas/PartyActivityMatchmakerFindingLobby'
-        matchmaker_lobby:
-          $ref: '#/components/schemas/PartyActivityMatchmakerLobby'
-    PartyActivityMatchmakerFindingLobby:
-      type: object
-      description: >-
-        A party activity denoting that the party is currently searching for a
-        lobby.
-      properties:
-        game:
-          $ref: '#/components/schemas/GameHandle'
-      required:
-        - game
-    PartyActivityMatchmakerLobby:
-      type: object
-      description: A party activity denoting that the party is currently in a lobby.
-      properties:
-        lobby:
-          $ref: '#/components/schemas/PartyMatchmakerLobby'
-        game:
-          $ref: '#/components/schemas/GameHandle'
-      required:
-        - lobby
-        - game
-    PartyExternalLinks:
-      type: object
-      description: External links for a party.
-      properties:
-        chat:
-          type: string
-          description: A link to the given party's chat thread.
-      required:
-        - chat
-    PartyMatchmakerLobby:
-      type: object
-      description: A party lobby.
-      properties:
-        lobby_id:
-          type: string
-          format: uuid
-      required:
-        - lobby_id
-    PartyPublicity:
-      type: object
-      properties:
-        public:
-          $ref: '#/components/schemas/PartyPublicityLevel'
-        mutual_followers:
-          $ref: '#/components/schemas/PartyPublicityLevel'
-        groups:
-          $ref: '#/components/schemas/PartyPublicityLevel'
-      required:
-        - public
-        - mutual_followers
-        - groups
-    PartyPublicityLevel:
-      type: string
-      enum:
-        - none
-        - view
-        - join
-    PartyMemberSummary:
-      type: object
-      properties:
-        identity:
-          $ref: '#/components/schemas/IdentityHandle'
-        is_leader:
-          type: boolean
-          description: Whether or not this party member is the leader of the given party.
-        join_ts:
-          type: string
-          format: date-time
-        state:
-          $ref: '#/components/schemas/PartyMemberState'
-      required:
-        - identity
-        - is_leader
-        - join_ts
-        - state
-    PartyMemberState:
-      type: object
-      properties:
-        idle:
-          $ref: '#/components/schemas/EmptyObject'
-          description: A party member state denoting that the member is idle.
-        matchmaker_pending:
-          $ref: '#/components/schemas/EmptyObject'
-          description: >-
-            A party member state denoting that the member is currently waiting
-            to start matchmaking.
-        matchmaker_finding_lobby:
-          $ref: '#/components/schemas/EmptyObject'
-          description: >-
-            A party member state denoting that the member is currently searching
-            for a lobby.
-        matchmaker_lobby:
-          $ref: '#/components/schemas/PartyMemberStateMatchmakerLobby'
-    PartyMemberStateMatchmakerLobby:
-      type: object
-      description: A party member state denoting that the member is in a lobby.
-      properties:
-        player_id:
-          type: string
-          format: uuid
-      required:
-        - player_id
-    PartyProfile:
-      type: object
-      properties:
-        party_id:
-          type: string
-          format: uuid
-        create_ts:
-          type: string
-          format: date-time
-          description: RFC3339 timestamp.
-        activity:
-          $ref: '#/components/schemas/PartyActivity'
-        external:
-          $ref: '#/components/schemas/PartyExternalLinks'
-        publicity:
-          $ref: '#/components/schemas/PartyPublicity'
-        party_size:
-          type: integer
-          description: Unsigned 32 bit integer.
-        members:
-          type: array
-          items:
-            $ref: '#/components/schemas/PartyMemberSummary'
-          description: A list of party members.
-        thread_id:
-          type: string
-          format: uuid
-        invites:
-          type: array
-          items:
-            $ref: '#/components/schemas/PartyInvite'
-          description: A list of party invites.
-      required:
-        - party_id
-        - create_ts
-        - activity
-        - external
-        - publicity
-        - members
-        - thread_id
-        - invites
-    PartyInvite:
-      type: object
-      description: A party invite.
-      properties:
-        invite_id:
-          type: string
-          format: uuid
-        create_ts:
-          type: string
-          format: date-time
-          description: RFC3339 timestamp.
-        token:
-          type: string
-          description: >-
-            A JSON Web Token.
-
-            Slightly modified to include a description prefix and use Protobufs
-            of
-
-            JSON.
-        alias:
-          $ref: '#/components/schemas/PartyInviteAlias'
-        external:
-          $ref: '#/components/schemas/PartyInviteExternalLinks'
-      required:
-        - invite_id
-        - create_ts
-        - token
-        - external
-    PartyInviteAlias:
-      type: object
-      description: An alias used to join a given party.
-      properties:
-        namespace_id:
-          type: string
-          format: uuid
-        alias:
-          type: string
-          description: The alias used to join a given party.
-      required:
-        - namespace_id
-        - alias
-    PartyInviteExternalLinks:
-      type: object
-      description: Extenral links for a party invite.
-      properties:
-        invite:
-          type: string
-          description: The invite link used to join this party from an external site.
-      required:
-        - invite
-    PartyGetInviteResponse:
-      type: object
-      properties:
-        party:
-          $ref: '#/components/schemas/PartySummary'
-      required:
-        - party
-    PartyCreateRequest:
-      type: object
-      properties:
-        party_size:
-          type: number
-          format: double
-          description: >-
-            How many members can join the party. If using this party with the
-            matchmaker, this number should be less than or equal to your party
-            player limit. Super large parties may not be able to fit insite a
-            lobby and be unable to join the game.
-        publicity:
-          $ref: '#/components/schemas/PartyCreatePublicityConfig'
-        invites:
-          type: array
-          items:
-            $ref: '#/components/schemas/PartyCreateInviteConfig'
-        matchmaker_current_player_token:
-          type: string
-          description: >-
-            If the player is currently in the lobby, pass the token from
-
-            `rivet.matchmaker#MatchmakerLobbyJoinInfoPlayer$token`.
-
-            This will prevent issuing a new player token and automatically set
-            the
-
-            party state to the player's current lobby.
-    PartyCreateResponse:
-      type: object
-      properties:
-        party_id:
-          type: string
-          format: uuid
-        invites:
-          type: array
-          items:
-            $ref: '#/components/schemas/PartyCreatedInvite'
-      required:
-        - party_id
-        - invites
-    PartyJoinRequest:
-      type: object
-      properties:
-        invite:
-          $ref: '#/components/schemas/PartyJoinInvite'
-        matchmaker_auto_join_lobby:
-          type: boolean
-          description: >-
-            Whether or not to automatically join the game lobby if a party is
-            currently in game.
-        matchmaker_current_player_token:
-          type: string
-          description: |-
-            If the player is currently in the lobby, pass the token from
-            `rivet.matchmaker#MatchmakerLobbyJoinInfoPlayer$token`.
-            This will prevent issuing a new player token.
-      required:
-        - invite
-    PartyJoinResponse:
-      type: object
-      properties:
-        party_id:
-          type: string
-          format: uuid
-      required:
-        - party_id
-    PartyCreateInviteRequest:
-      type: object
-      properties:
-        alias:
-          type: string
-          description: An alias used to join a given party.
-    PartyCreateInviteResponse:
-      type: object
-      properties:
-        invite:
-          $ref: '#/components/schemas/PartyCreatedInvite'
-      required:
-        - invite
-    PartyGetSelfProfileResponse:
-      type: object
-      properties:
-        party:
-          $ref: '#/components/schemas/PartyProfile'
-        watch:
-          $ref: '#/components/schemas/WatchResponse'
-      required:
-        - watch
-    PartySetPublicityRequest:
-      type: object
-      properties:
-        public:
-          $ref: '#/components/schemas/PartyPublicityLevel'
-        mutual_followers:
-          $ref: '#/components/schemas/PartyPublicityLevel'
-        groups:
-          $ref: '#/components/schemas/PartyPublicityLevel'
-    PartyGetSelfSummaryResponse:
-      type: object
-      properties:
-        party:
-          $ref: '#/components/schemas/PartySummary'
-        watch:
-          $ref: '#/components/schemas/WatchResponse'
-      required:
-        - watch
-    PartyGetProfileResponse:
-      type: object
-      properties:
-        party:
-          $ref: '#/components/schemas/PartyProfile'
-        watch:
-          $ref: '#/components/schemas/WatchResponse'
-      required:
-        - party
-        - watch
-    PartyGetSummaryResponse:
-      type: object
-      properties:
-        party:
-          $ref: '#/components/schemas/PartySummary'
-        watch:
-          $ref: '#/components/schemas/WatchResponse'
-      required:
-        - party
-        - watch
     UploadPresignedRequest:
       type: object
       description: >
