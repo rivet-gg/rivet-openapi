@@ -3,12 +3,11 @@ info:
   title: Rivet API
   version: ''
 paths:
-  /messages:
+  /admin/login:
     post:
-      description: Sends a chat message to a given topic.
-      operationId: chat_sendMessage
+      operationId: admin_login
       tags:
-        - Chat
+        - Admin
       parameters: []
       responses:
         '200':
@@ -16,7 +15,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ChatSendMessageResponse'
+                $ref: '#/components/schemas/AdminLoginResponse'
         '400':
           description: ''
           content:
@@ -53,8 +52,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://chat.api.rivet.gg/v1
       security: &ref_0
         - BearerAuth: []
       requestBody:
@@ -62,55 +59,21 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ChatSendMessageRequest'
-  /threads/{thread_id}/history:
+              $ref: '#/components/schemas/AdminLoginRequest'
+  /cloud/bootstrap:
     get:
-      description: |-
-        Returns message history for a given thread in a certain direction.
-        Defaults to querying messages before ts.
-      operationId: chat_getThreadHistory
+      description: Returns the basic information required to use the cloud APIs.
+      operationId: cloud_bootstrap
       tags:
-        - Chat
-      parameters:
-        - name: thread_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: ts
-          in: query
-          description: RFC3339 timestamp.
-          required: false
-          schema:
-            type: string
-            format: date-time
-        - name: count
-          in: query
-          description: >-
-            How many messages to collect in each direction. If querying
-            `rivet.api.chat.common#QueryDirection$before_and_after`,
-            `rivet.api.chat.common#QueryDirection$chat_messages` will be `count
-            * 2`.
-          required: true
-          schema:
-            type: number
-            format: double
-        - name: query_direction
-          in: query
-          description: >-
-            Represents which direction to query messages from relative to the
-            given timestamp.
-          required: false
-          schema:
-            $ref: '#/components/schemas/ChatQueryDirection'
+        - Cloud
+      parameters: []
       responses:
         '200':
           description: ''
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ChatGetThreadHistoryResponse'
+                $ref: '#/components/schemas/CloudBootstrapResponse'
         '400':
           description: ''
           content:
@@ -147,258 +110,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://chat.api.rivet.gg/v1
       security: *ref_0
-  /threads/{thread_id}/live:
-    get:
-      description: |-
-        Fetches all relevant changes from a thread that have happened since the
-        given watch index.
-      operationId: chat_watchThread
-      tags:
-        - Chat
-      parameters:
-        - name: thread_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: watch_index
-          in: query
-          description: A query parameter denoting the requests watch index.
-          required: false
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ChatWatchThreadResponse'
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://chat.api.rivet.gg/v1
-      security: *ref_0
-  /threads/{thread_id}/read:
-    post:
-      description: Updates the current identity's last read timestamp in the given thread.
-      operationId: chat_setThreadRead
-      tags:
-        - Chat
-      parameters:
-        - name: thread_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '204':
-          description: ''
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://chat.api.rivet.gg/v1
-      security: *ref_0
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ChatSetThreadReadRequest'
-  /threads/{thread_id}/topic:
-    get:
-      description: Fetches the topic of a thread.
-      operationId: chat_getThreadTopic
-      tags:
-        - Chat
-      parameters:
-        - name: thread_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ChatGetThreadTopicResponse'
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://chat.api.rivet.gg/v1
-      security: *ref_0
-  /threads/{thread_id}/typing-status:
-    put:
-      description: Updates the current identity's typing status in the given thread.
-      operationId: chat_setTypingStatus
-      tags:
-        - Chat
-      parameters:
-        - name: thread_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '204':
-          description: ''
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://chat.api.rivet.gg/v1
-      security: *ref_0
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ChatSetTypingStatusRequest'
-  /games/{game_id}/namespaces:
+  /cloud/games/{game_id}/namespaces:
     post:
       description: Creates a new namespace for the given game.
       operationId: cloud_games_namespaces_createGameNamespace
@@ -455,8 +168,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -465,7 +176,7 @@ paths:
             schema:
               $ref: >-
                 #/components/schemas/CloudGamesNamespacesCreateGameNamespaceRequest
-  /games/{game_id}/namespaces/validate:
+  /cloud/games/{game_id}/namespaces/validate:
     post:
       description: Validates information used to create a new game namespace.
       operationId: cloud_games_namespaces_validateGameNamespace
@@ -522,8 +233,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -532,7 +241,7 @@ paths:
             schema:
               $ref: >-
                 #/components/schemas/CloudGamesNamespacesValidateGameNamespaceRequest
-  /games/{game_id}/namespaces/{namespace_id}:
+  /cloud/games/{game_id}/namespaces/{namespace_id}:
     get:
       description: Gets a game namespace by namespace ID.
       operationId: cloud_games_namespaces_getGameNamespaceById
@@ -595,10 +304,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /games/{game_id}/namespaces/{namespace_id}/auth-user:
+  /cloud/games/{game_id}/namespaces/{namespace_id}/auth-user:
     post:
       description: Adds an authenticated user to the given game namespace.
       operationId: cloud_games_namespaces_updateNamespaceCdnAuthUser
@@ -656,8 +363,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -666,7 +371,7 @@ paths:
             schema:
               $ref: >-
                 #/components/schemas/CloudGamesNamespacesUpdateNamespaceCdnAuthUserRequest
-  /games/{game_id}/namespaces/{namespace_id}/auth-user/{user}:
+  /cloud/games/{game_id}/namespaces/{namespace_id}/auth-user/{user}:
     delete:
       description: Removes an authenticated user from the given game namespace.
       operationId: cloud_games_namespaces_removeNamespaceCdnAuthUser
@@ -730,10 +435,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /games/{game_id}/namespaces/{namespace_id}/cdn-auth:
+  /cloud/games/{game_id}/namespaces/{namespace_id}/cdn-auth:
     put:
       description: Updates the CDN authentication type of the given game namesapce.
       operationId: cloud_games_namespaces_setNamespaceCdnAuthType
@@ -791,8 +494,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -801,7 +502,7 @@ paths:
             schema:
               $ref: >-
                 #/components/schemas/CloudGamesNamespacesSetNamespaceCdnAuthTypeRequest
-  /games/{game_id}/namespaces/{namespace_id}/domain-public-auth:
+  /cloud/games/{game_id}/namespaces/{namespace_id}/domain-public-auth:
     put:
       description: >-
         Toggles whether or not to allow authentication based on domain for the
@@ -861,8 +562,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -871,7 +570,7 @@ paths:
             schema:
               $ref: >-
                 #/components/schemas/CloudGamesNamespacesToggleNamespaceDomainPublicAuthRequest
-  /games/{game_id}/namespaces/{namespace_id}/domains:
+  /cloud/games/{game_id}/namespaces/{namespace_id}/domains:
     post:
       description: Adds a domain to the given game namespace.
       operationId: cloud_games_namespaces_addNamespaceDomain
@@ -929,8 +628,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -939,7 +636,7 @@ paths:
             schema:
               $ref: >-
                 #/components/schemas/CloudGamesNamespacesAddNamespaceDomainRequest
-  /games/{game_id}/namespaces/{namespace_id}/domains/{domain}:
+  /cloud/games/{game_id}/namespaces/{namespace_id}/domains/{domain}:
     delete:
       description: Removes a domain from the given game namespace.
       operationId: cloud_games_namespaces_removeNamespaceDomain
@@ -1003,10 +700,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /games/{game_id}/namespaces/{namespace_id}/mm-config:
+  /cloud/games/{game_id}/namespaces/{namespace_id}/mm-config:
     post:
       description: Updates matchmaker config for the given game namespace.
       operationId: cloud_games_namespaces_updateGameNamespaceMatchmakerConfig
@@ -1064,8 +759,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -1074,7 +767,7 @@ paths:
             schema:
               $ref: >-
                 #/components/schemas/CloudGamesNamespacesUpdateGameNamespaceMatchmakerConfigRequest
-  /games/{game_id}/namespaces/{namespace_id}/version-history:
+  /cloud/games/{game_id}/namespaces/{namespace_id}/version-history:
     get:
       description: Gets the version history for a given namespace.
       operationId: cloud_games_namespaces_GetGameNamespaceVersionHistoryList
@@ -1149,10 +842,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /games/{game_id}/namespaces/{namespace_id}/mm-config/validate:
+  /cloud/games/{game_id}/namespaces/{namespace_id}/mm-config/validate:
     post:
       description: >-
         Validates information used to update a game namespace's matchmaker
@@ -1217,8 +908,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -1227,7 +916,7 @@ paths:
             schema:
               $ref: >-
                 #/components/schemas/CloudGamesNamespacesValidateGameNamespaceMatchmakerConfigRequest
-  /games/{game_id}/namespaces/{namespace_id}/tokens/development:
+  /cloud/games/{game_id}/namespaces/{namespace_id}/tokens/development:
     post:
       description: Creates a development token for the given namespace.
       operationId: cloud_games_namespaces_createGameNamespaceTokenDevelopment
@@ -1290,8 +979,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -1300,7 +987,7 @@ paths:
             schema:
               $ref: >-
                 #/components/schemas/CloudGamesNamespacesCreateGameNamespaceTokenDevelopmentRequest
-  /games/{game_id}/namespaces/{namespace_id}/tokens/development/validate:
+  /cloud/games/{game_id}/namespaces/{namespace_id}/tokens/development/validate:
     post:
       description: >-
         Validates information used to create a new game namespace development
@@ -1365,8 +1052,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -1375,7 +1060,7 @@ paths:
             schema:
               $ref: >-
                 #/components/schemas/CloudGamesNamespacesValidateGameNamespaceTokenDevelopmentRequest
-  /games/{game_id}/namespaces/{namespace_id}/tokens/public:
+  /cloud/games/{game_id}/namespaces/{namespace_id}/tokens/public:
     post:
       description: Creates a public token for the given namespace.
       operationId: cloud_games_namespaces_createGameNamespaceTokenPublic
@@ -1438,10 +1123,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /games/{game_id}/namespaces/{namespace_id}/version:
+  /cloud/games/{game_id}/namespaces/{namespace_id}/version:
     put:
       description: Updates the version of a game namespace.
       operationId: cloud_games_namespaces_updateGameNamespaceVersion
@@ -1499,8 +1182,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -1509,7 +1190,7 @@ paths:
             schema:
               $ref: >-
                 #/components/schemas/CloudGamesNamespacesUpdateGameNamespaceVersionRequest
-  /groups:
+  /group/groups:
     get:
       description: Returns a list of suggested groups.
       operationId: group_listSuggested
@@ -1565,8 +1246,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
     post:
       description: Creates a new group.
@@ -1617,8 +1296,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -1626,7 +1303,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/GroupCreateRequest'
-  /groups/avatar-upload/prepare:
+  /group/groups/avatar-upload/prepare:
     post:
       description: |-
         Prepares an avatar image upload.
@@ -1678,8 +1355,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -1687,7 +1362,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/GroupPrepareAvatarUploadRequest'
-  /groups/profile/validate:
+  /group/groups/profile/validate:
     post:
       description: >-
         Validate contents of group profile. Use to provide immediate feedback on
@@ -1739,8 +1414,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -1748,7 +1421,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/GroupValidateProfileRequest'
-  /groups/search:
+  /group/groups/search:
     get:
       description: Fuzzy search for groups.
       operationId: group_search
@@ -1816,10 +1489,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
-  /groups/{group_id}/avatar-upload/{upload_id}/complete:
+  /group/groups/{group_id}/avatar-upload/{upload_id}/complete:
     post:
       description: |-
         Completes an avatar image upload. Must be called after the file upload
@@ -1880,10 +1551,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
-  /groups/{group_id}/bans:
+  /group/groups/{group_id}/bans:
     get:
       description: Returns a group's bans. Must have valid permissions to view.
       operationId: group_getBans
@@ -1960,10 +1629,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
-  /groups/{group_id}/bans/{identity_id}:
+  /group/groups/{group_id}/bans/{identity_id}:
     post:
       description: >-
         Bans an identity from a group. Must be the owner of the group to perform
@@ -2024,8 +1691,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
     delete:
       description: >-
@@ -2086,10 +1751,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
-  /groups/{group_id}/join-requests:
+  /group/groups/{group_id}/join-requests:
     get:
       description: Returns a group's join requests. Must have valid permissions to view.
       operationId: group_getJoinRequests
@@ -2166,10 +1829,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
-  /groups/{group_id}/kick/{identity_id}:
+  /group/groups/{group_id}/kick/{identity_id}:
     post:
       description: >-
         Kicks an identity from a group. Must be the owner of the group to
@@ -2229,10 +1890,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
-  /groups/{group_id}/leave:
+  /group/groups/{group_id}/leave:
     post:
       description: Leaves a group.
       operationId: group_leave
@@ -2284,10 +1943,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
-  /groups/{group_id}/members:
+  /group/groups/{group_id}/members:
     get:
       description: Returns a group's members.
       operationId: group_getMembers
@@ -2364,10 +2021,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
-  /groups/{group_id}/profile:
+  /group/groups/{group_id}/profile:
     get:
       description: Returns a group profile.
       operationId: group_getProfile
@@ -2429,8 +2084,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
     post:
       operationId: group_updateProfile
@@ -2482,8 +2135,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -2491,7 +2142,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/GroupUpdateProfileRequest'
-  /groups/{group_id}/summary:
+  /group/groups/{group_id}/summary:
     get:
       operationId: group_getSummary
       tags:
@@ -2546,10 +2197,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
-  /groups/{group_id}/transfer-owner:
+  /group/groups/{group_id}/transfer-owner:
     post:
       description: Transfers ownership of a group to another identity.
       operationId: group_transferOwnership
@@ -2601,8 +2250,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -2610,7 +2257,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/GroupTransferOwnershipRequest'
-  /identities:
+  /identity/identities:
     post:
       description: >-
         Gets or creates an identity.
@@ -2680,8 +2327,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -2692,7 +2337,7 @@ paths:
               properties:
                 existing_identity_token:
                   $ref: '#/components/schemas/Jwt'
-  /identities/{identity_id}/profile:
+  /identity/identities/{identity_id}/profile:
     get:
       description: Fetches an identity profile.
       operationId: identity_getProfile
@@ -2753,10 +2398,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
-  /identities/self/profile:
+  /identity/identities/self/profile:
     get:
       description: Fetches the current identity's profile.
       operationId: identity_getSelfProfile
@@ -2811,8 +2454,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
     post:
       description: Updates profile of the current identity.
@@ -2859,8 +2500,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -2875,7 +2514,7 @@ paths:
                   $ref: '#/components/schemas/AccountNumber'
                 bio:
                   $ref: '#/components/schemas/Bio'
-  /identities/batch/handle:
+  /identity/identities/batch/handle:
     get:
       description: Fetches a list of identity handles.
       operationId: identity_getHandles
@@ -2930,10 +2569,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
-  /identities/batch/summary:
+  /identity/identities/batch/summary:
     get:
       description: Fetches a list of identity summaries.
       operationId: identity_getSummaries
@@ -2988,10 +2625,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
-  /identities/self/profile/validate:
+  /identity/identities/self/profile/validate:
     post:
       description: >-
         Validate contents of identity profile. Use to provide immediate feedback
@@ -3039,8 +2674,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -3055,7 +2688,7 @@ paths:
                   $ref: '#/components/schemas/AccountNumber'
                 bio:
                   $ref: '#/components/schemas/Bio'
-  /identities/search:
+  /identity/identities/search:
     get:
       description: Fuzzy search for identities.
       operationId: identity_search
@@ -3125,10 +2758,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
-  /identities/self/activity:
+  /identity/identities/self/activity:
     post:
       description: >-
         Sets the current identity's game activity. This activity will
@@ -3176,8 +2807,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -3235,10 +2864,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
-  /identities/identities/self/status:
+  /identity/identities/identities/self/status:
     post:
       description: Updates the current identity's status.
       operationId: identity_updateStatus
@@ -3284,8 +2911,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -3298,7 +2923,7 @@ paths:
                   $ref: '#/components/schemas/IdentityStatus'
               required:
                 - status
-  /identities/{identity_id}/follow:
+  /identity/identities/{identity_id}/follow:
     post:
       description: >-
         Follows the given identity. In order for identities to be "friends", the
@@ -3352,8 +2977,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
     delete:
       description: Unfollows the given identity.
@@ -3406,10 +3029,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
-  /identities/avatar-upload/prepare:
+  /identity/identities/avatar-upload/prepare:
     post:
       description: >-
         Prepares an avatar image upload. Complete upload with
@@ -3461,8 +3082,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -3485,7 +3104,7 @@ paths:
                 - path
                 - mime
                 - content_length
-  /identities/avatar-upload/{upload_id}/complete:
+  /identity/identities/avatar-upload/{upload_id}/complete:
     post:
       description: >-
         Completes an avatar image upload. Must be called after the file upload
@@ -3539,10 +3158,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
-  /identities/self/beta-signup:
+  /identity/identities/self/beta-signup:
     post:
       description: >-
         Completes an avatar image upload. Must be called after the file upload
@@ -3590,8 +3207,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -3615,7 +3230,7 @@ paths:
                 - company_size
                 - preferred_tools
                 - goals
-  /identities/{identity_id}/report:
+  /identity/identities/{identity_id}/report:
     post:
       description: Creates an abuse report for an identity.
       operationId: identity_report
@@ -3667,8 +3282,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -3679,7 +3292,7 @@ paths:
               properties:
                 reason:
                   type: string
-  /identities/{identity_id}/followers:
+  /identity/identities/{identity_id}/followers:
     get:
       operationId: identity_listFollowers
       tags:
@@ -3745,10 +3358,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
-  /identities/{identity_id}/following:
+  /identity/identities/{identity_id}/following:
     get:
       operationId: identity_listFollowing
       tags:
@@ -3814,10 +3425,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
-  /identities/self/friends:
+  /identity/identities/self/friends:
     get:
       operationId: identity_listFriends
       tags:
@@ -3877,10 +3486,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
-  /identities/{identity_id}/mutual-friends:
+  /identity/identities/{identity_id}/mutual-friends:
     get:
       operationId: identity_listMutualFriends
       tags:
@@ -3946,10 +3553,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
-  /identities/self/recent-followers:
+  /identity/identities/self/recent-followers:
     get:
       operationId: identity_listRecentFollowers
       tags:
@@ -4008,10 +3613,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
-  /identities/self/recent-followers/{identity_id}/ignore:
+  /identity/identities/self/recent-followers/{identity_id}/ignore:
     post:
       operationId: identity_ignoreRecentFollower
       tags:
@@ -4062,10 +3665,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
-  /identities/self/delete-request:
+  /identity/identities/self/delete-request:
     post:
       operationId: identity_markDeletion
       tags:
@@ -4110,8 +3711,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
     delete:
       operationId: identity_unmarkDeletion
@@ -4157,10 +3756,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
-  /entries:
+  /kv/entries:
     get:
       description: Returns a specific key-value entry by key.
       operationId: kv_get
@@ -4227,8 +3824,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://kv.api.rivet.gg/v1
       security: *ref_0
     put:
       description: Puts (sets or overwrites) a key-value entry by key.
@@ -4275,8 +3870,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://kv.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -4340,10 +3933,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://kv.api.rivet.gg/v1
       security: *ref_0
-  /entries/batch:
+  /kv/entries/batch:
     get:
       description: Gets multiple key-value entries by key(s).
       operationId: kv_getBatch
@@ -4410,8 +4001,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://kv.api.rivet.gg/v1
       security: *ref_0
     put:
       description: Puts (sets or overwrites) multiple key-value entries by key(s).
@@ -4458,8 +4047,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://kv.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -4523,10 +4110,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://kv.api.rivet.gg/v1
       security: *ref_0
-  /modules/{module}/scripts/{script}/call:
+  /module/modules/{module}/scripts/{script}/call:
     post:
       description: |
         Makes a request to a module's script.
@@ -4592,8 +4177,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://module.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -4608,66 +4191,7 @@ paths:
                 data: {}
               required:
                 - data
-  /identities/{identity_id}/thread:
-    get:
-      description: Returns a thread ID with a given identity.
-      operationId: chat_identity_getDirectThread
-      tags:
-        - ChatIdentity
-      parameters:
-        - name: identity_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ChatGetDirectThreadResponse'
-        '400':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '403':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '408':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '429':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-        '500':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://chat.api.rivet.gg/v1
-      security: *ref_0
-  /auth/inspect:
+  /cloud/auth/inspect:
     get:
       description: Returns information about the current authenticated agent.
       operationId: cloud_auth_inspect
@@ -4717,10 +4241,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /devices/links:
+  /cloud/devices/links:
     post:
       operationId: cloud_devices_links_prepare
       tags:
@@ -4769,8 +4291,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
     get:
       operationId: cloud_devices_links_get
       tags:
@@ -4829,9 +4349,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
-  /games/{game_id}/avatars:
+  /cloud/games/{game_id}/avatars:
     get:
       description: Lists custom avatars for the given game.
       operationId: cloud_games_avatars_listGameCustomAvatars
@@ -4887,10 +4405,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /games/{game_id}/prepare:
+  /cloud/games/{game_id}/prepare:
     post:
       description: |-
         Prepares a custom avatar image upload.
@@ -4949,8 +4465,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -4958,7 +4472,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CloudGamesPrepareCustomAvatarUploadRequest'
-  /games/{game_id}/avatar-upload/{upload_id}/complete:
+  /cloud/games/{game_id}/avatar-upload/{upload_id}/complete:
     post:
       description: >-
         Completes a custom avatar image upload. Must be called after the file
@@ -5018,10 +4532,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /games/{game_id}/builds:
+  /cloud/games/{game_id}/builds:
     get:
       description: Lists game builds for the given game.
       operationId: cloud_games_builds_listGameBuilds
@@ -5077,8 +4589,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
     post:
       description: Creates a new game build for the given game.
@@ -5135,8 +4645,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -5144,7 +4652,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CloudGamesCreateGameBuildRequest'
-  /games/{game_id}/cdn/sites:
+  /cloud/games/{game_id}/cdn/sites:
     get:
       description: Lists CDN sites for a game.
       operationId: cloud_games_cdn_listGameCdnSites
@@ -5200,8 +4708,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
     post:
       description: Creates a new CDN site for the given game.
@@ -5258,8 +4764,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -5267,7 +4771,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CloudGamesCreateGameCdnSiteRequest'
-  /games:
+  /cloud/games:
     get:
       description: >-
         Returns a list of games in which the current identity is a group member
@@ -5325,8 +4829,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
     post:
       description: Creates a new game.
@@ -5377,8 +4879,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -5386,7 +4886,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CloudGamesCreateGameRequest'
-  /games/validate:
+  /cloud/games/validate:
     post:
       description: Validates information used to create a new game.
       operationId: cloud_games_games_validateGame
@@ -5436,8 +4936,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -5445,7 +4943,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CloudGamesValidateGameRequest'
-  /games/{game_id}:
+  /cloud/games/{game_id}:
     get:
       description: Returns a game by its game id.
       operationId: cloud_games_games_getGameById
@@ -5507,10 +5005,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /games/{game_id}/banner-upload/prepare:
+  /cloud/games/{game_id}/banner-upload/prepare:
     post:
       description: Prepares a game banner image upload.
       operationId: cloud_games_games_gameBannerUploadPrepare
@@ -5566,8 +5062,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -5575,7 +5069,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CloudGamesGameBannerUploadPrepareRequest'
-  /games/{game_id}/banner-upload/{upload_id}/complete:
+  /cloud/games/{game_id}/banner-upload/{upload_id}/complete:
     post:
       description: >-
         Completes an game banner image upload. Must be called after the file
@@ -5635,10 +5129,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /games/{game_id}/logo-upload/prepare:
+  /cloud/games/{game_id}/logo-upload/prepare:
     post:
       description: Prepares a game logo image upload.
       operationId: cloud_games_games_gameLogoUploadPrepare
@@ -5694,8 +5186,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -5703,7 +5193,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CloudGamesGameLogoUploadPrepareRequest'
-  /games/{game_id}/logo-upload/{upload_id}/complete:
+  /cloud/games/{game_id}/logo-upload/{upload_id}/complete:
     post:
       description: >-
         Completes a game logo image upload. Must be called after the file upload
@@ -5763,10 +5253,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /games/{game_id}/matchmaker/lobbies/export-history:
+  /cloud/games/{game_id}/matchmaker/lobbies/export-history:
     post:
       description: Exports lobby history over a given query time span.
       operationId: cloud_games_matchmaker_exportMatchmakerLobbyHistory
@@ -5823,8 +5311,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -5833,7 +5319,7 @@ paths:
             schema:
               $ref: >-
                 #/components/schemas/CloudGamesExportMatchmakerLobbyHistoryRequest
-  /games/{game_id}/matchmaker/lobbies/{lobby_id}:
+  /cloud/games/{game_id}/matchmaker/lobbies/{lobby_id}:
     delete:
       description: Deletes a matchmaker lobby, stopping it immediately.
       operationId: cloud_games_matchmaker_deleteMatchmakerLobby
@@ -5895,10 +5381,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /games/{game_id}/matchmaker/lobbies/{lobby_id}/logs:
+  /cloud/games/{game_id}/matchmaker/lobbies/{lobby_id}/logs:
     get:
       description: Returns the logs for a given lobby.
       operationId: cloud_games_matchmaker_getLobbyLogs
@@ -5971,10 +5455,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /games/{game_id}/matchmaker/lobbies/{lobby_id}/logs/export:
+  /cloud/games/{game_id}/matchmaker/lobbies/{lobby_id}/logs/export:
     post:
       description: Generates a download URL for logs.
       operationId: cloud_games_matchmaker_exportLobbyLogs
@@ -6036,8 +5518,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -6045,7 +5525,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CloudGamesExportLobbyLogsRequest'
-  /games/{game_id}/namespaces/{namespace_id}/analytics/matchmaker/live:
+  /cloud/games/{game_id}/namespaces/{namespace_id}/analytics/matchmaker/live:
     get:
       description: Returns live information about all active lobbies for a given namespace.
       operationId: cloud_games_namespaces_analytics_getAnalyticsMatchmakerLive
@@ -6108,10 +5588,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /games/{game_id}/namespaces/{namespace_id}/logs/lobbies:
+  /cloud/games/{game_id}/namespaces/{namespace_id}/logs/lobbies:
     get:
       description: Returns a list of lobbies for the given game namespace.
       operationId: cloud_games_namespaces_logs_listNamespaceLobbies
@@ -6181,10 +5659,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /games/{game_id}/namespaces/{namespace_id}/logs/lobbies/{lobby_id}:
+  /cloud/games/{game_id}/namespaces/{namespace_id}/logs/lobbies/{lobby_id}:
     get:
       description: Returns a lobby from the given game namespace.
       operationId: cloud_games_namespaces_logs_getNamespaceLobby
@@ -6253,10 +5729,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /games/{game_id}/tokens/cloud:
+  /cloud/games/{game_id}/tokens/cloud:
     post:
       description: Creates a new game cloud token.
       operationId: cloud_games_tokens_createCloudToken
@@ -6312,10 +5786,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /games/{game_id}/versions:
+  /cloud/games/{game_id}/versions:
     post:
       description: Creates a new game version.
       operationId: cloud_games_versions_createGameVersion
@@ -6371,8 +5843,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -6380,7 +5850,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CloudGamesCreateGameVersionRequest'
-  /games/{game_id}/versions/validate:
+  /cloud/games/{game_id}/versions/validate:
     post:
       description: Validates information used to create a new game version.
       operationId: cloud_games_versions_validateGameVersion
@@ -6436,8 +5906,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -6445,7 +5913,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CloudGamesValidateGameVersionRequest'
-  /games/{game_id}/versions/{version_id}:
+  /cloud/games/{game_id}/versions/{version_id}:
     get:
       description: Returns a game version by its version ID.
       operationId: cloud_games_versions_getGameVersionById
@@ -6507,10 +5975,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /groups/validate:
+  /cloud/groups/validate:
     post:
       description: Validates information used to create a new group.
       operationId: cloud_groups_validate
@@ -6560,8 +6026,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -6569,7 +6033,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CloudValidateGroupRequest'
-  /groups/{group_id}/convert:
+  /cloud/groups/{group_id}/convert:
     post:
       description: Converts the given group into a developer group.
       operationId: cloud_groups_convertGroup
@@ -6621,10 +6085,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /rays/{ray_id}/perf:
+  /cloud/rays/{ray_id}/perf:
     get:
       description: Returns performance information about a Rivet Ray.
       operationId: cloud_logs_getRayPerfLogs
@@ -6680,10 +6142,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /region-tiers:
+  /cloud/region-tiers:
     get:
       description: Returns all available region tiers.
       operationId: cloud_tiers_getRegionTiers
@@ -6733,10 +6193,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /uploads/{upload_id}/complete:
+  /cloud/uploads/{upload_id}/complete:
     post:
       description: Marks an upload as complete.
       operationId: cloud_uploads_completeUpload
@@ -6788,10 +6246,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://cloud.api.rivet.gg/v1
       security: *ref_0
-  /invites/{group_invite_code}:
+  /group/invites/{group_invite_code}:
     get:
       description: >-
         Inspects a group invite returning information about the team that
@@ -6849,10 +6305,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
-  /invites/{group_invite_code}/consume:
+  /group/invites/{group_invite_code}/consume:
     post:
       description: Consumes a group invite to join a group.
       operationId: group_invites_consumeInvite
@@ -6908,10 +6362,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
-  /groups/{group_id}/invites:
+  /group/groups/{group_id}/invites:
     post:
       description: >-
         Creates a group invite. Can be shared with other identities to let them
@@ -6969,8 +6421,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -6978,7 +6428,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/GroupCreateInviteRequest'
-  /groups/{group_id}/join-request:
+  /group/groups/{group_id}/join-request:
     post:
       description: Requests to join a group.
       operationId: group_joinRequests_createJoinRequest
@@ -7030,10 +6480,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
-  /groups/{group_id}/join-request/{identity_id}:
+  /group/groups/{group_id}/join-request/{identity_id}:
     post:
       description: Resolves a join request for a given group.
       operationId: group_joinRequests_resolveJoinRequest
@@ -7091,8 +6539,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://group.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -7100,7 +6546,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/GroupResolveJoinRequestRequest'
-  /events/live:
+  /identity/events/live:
     get:
       description: Returns all events relative to the current identity.
       operationId: identity_events_watch
@@ -7155,10 +6601,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
-  /game-links:
+  /identity/game-links:
     post:
       description: >
         Begins the process for linking an identity with the Rivet Hub.
@@ -7236,8 +6680,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
     get:
       description: >-
@@ -7301,10 +6743,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://identity.api.rivet.gg/v1
       security: *ref_0
-  /lobbies/ready:
+  /matchmaker/lobbies/ready:
     post:
       description: >-
         Marks the current lobby as ready to accept connections.  Players will
@@ -7353,10 +6793,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://matchmaker.api.rivet.gg/v1
       security: *ref_0
-  /lobbies/closed:
+  /matchmaker/lobbies/closed:
     put:
       description: >
         If `is_closed` is `true`, the matchmaker will no longer route players to
@@ -7411,8 +6849,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://matchmaker.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -7425,7 +6861,7 @@ paths:
                   type: boolean
               required:
                 - is_closed
-  /lobbies/state:
+  /matchmaker/lobbies/state:
     put:
       operationId: matchmaker_lobbies_setState
       tags:
@@ -7470,15 +6906,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://matchmaker.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: false
         content:
           application/json:
             schema: {}
-  /lobbies/{lobby_id}/state:
+  /matchmaker/lobbies/{lobby_id}/state:
     get:
       operationId: matchmaker_lobbies_getState
       tags:
@@ -7532,10 +6966,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://matchmaker.api.rivet.gg/v1
       security: *ref_0
-  /lobbies/find:
+  /matchmaker/lobbies/find:
     post:
       description: |
         Finds a lobby based on the given criteria.
@@ -7593,8 +7025,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://matchmaker.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -7613,12 +7043,18 @@ paths:
                     type: string
                 prevent_auto_create_lobby:
                   type: boolean
+                tags:
+                  type: object
+                  additionalProperties:
+                    type: string
+                max_players:
+                  type: integer
                 captcha:
                   $ref: '#/components/schemas/CaptchaConfig'
                 verification_data: {}
               required:
                 - game_modes
-  /lobbies/join:
+  /matchmaker/lobbies/join:
     post:
       description: |
         Joins a specific lobby.
@@ -7671,8 +7107,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://matchmaker.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -7688,7 +7122,7 @@ paths:
                 verification_data: {}
               required:
                 - lobby_id
-  /lobbies/create:
+  /matchmaker/lobbies/create:
     post:
       description: |
         Creates a custom lobby.
@@ -7739,8 +7173,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://matchmaker.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -7753,16 +7185,21 @@ paths:
                   type: string
                 region:
                   type: string
-                captcha:
-                  $ref: '#/components/schemas/CaptchaConfig'
                 publicity:
                   $ref: '#/components/schemas/MatchmakerCustomLobbyPublicity'
+                tags:
+                  type: object
+                  additionalProperties:
+                    type: string
+                max_players:
+                  type: integer
                 lobby_config: {}
+                captcha:
+                  $ref: '#/components/schemas/CaptchaConfig'
                 verification_data: {}
               required:
                 - game_mode
-                - publicity
-  /lobbies/list:
+  /matchmaker/lobbies/list:
     get:
       description: Lists all open lobbies.
       operationId: matchmaker_lobbies_list
@@ -7817,10 +7254,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://matchmaker.api.rivet.gg/v1
       security: *ref_0
-  /players/connected:
+  /matchmaker/players/connected:
     post:
       description: >
         Validates the player token is valid and has not already been consumed
@@ -7932,8 +7367,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://matchmaker.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -7946,7 +7379,7 @@ paths:
                   type: string
               required:
                 - player_token
-  /players/disconnected:
+  /matchmaker/players/disconnected:
     post:
       description: >-
         Marks a player as disconnected. # Ghost Players If players are not
@@ -7995,8 +7428,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://matchmaker.api.rivet.gg/v1
       security: *ref_0
       requestBody:
         required: true
@@ -8009,7 +7440,7 @@ paths:
                   type: string
               required:
                 - player_token
-  /players/statistics:
+  /matchmaker/players/statistics:
     get:
       description: Gives matchmaker statistics about the players in game.
       operationId: matchmaker_players_getStatistics
@@ -8059,10 +7490,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://matchmaker.api.rivet.gg/v1
       security: *ref_0
-  /regions:
+  /matchmaker/regions:
     get:
       description: >
         Returns a list of regions available to this namespace.
@@ -8118,87 +7547,51 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
-      servers:
-        - url: https://matchmaker.api.rivet.gg/v1
       security: *ref_0
 components:
   schemas:
-    ChatSendMessageRequest:
+    AdminLoginRequest:
       type: object
       properties:
-        topic:
-          $ref: '#/components/schemas/ChatSendTopic'
-        message_body:
-          $ref: '#/components/schemas/ChatSendMessageBody'
-      required:
-        - topic
-        - message_body
-    ChatSendMessageResponse:
-      type: object
-      properties:
-        chat_message_id:
+        name:
           type: string
-          format: uuid
       required:
-        - chat_message_id
-    ChatGetThreadHistoryResponse:
+        - name
+    AdminLoginResponse:
       type: object
       properties:
-        chat_messages:
-          type: array
-          items:
-            $ref: '#/components/schemas/ChatMessage'
-          description: |-
-            Ordered old to new.
-            If querying `rivet.api.chat.common#before_and_after`, this will be
-            `count * 2` long.
-      required:
-        - chat_messages
-    ChatWatchThreadResponse:
-      type: object
-      properties:
-        chat_messages:
-          type: array
-          items:
-            $ref: '#/components/schemas/ChatMessage'
-          description: |-
-            All messages new messages posted to this thread. Ordered
-            old to new.
-        typing_statuses:
-          type: array
-          items:
-            $ref: '#/components/schemas/ChatIdentityTypingStatus'
-          description: All identities that are currently typing in this thread.
-        watch:
-          $ref: '#/components/schemas/WatchResponse'
-      required:
-        - chat_messages
-        - watch
-    ChatSetThreadReadRequest:
-      type: object
-      properties:
-        last_read_ts:
+        url:
           type: string
-          format: date-time
-          description: |-
-            Any messages newer than this timestamp will be marked as unread.
-            This should be the current timestamp (in milliseconds).
       required:
-        - last_read_ts
-    ChatGetThreadTopicResponse:
+        - url
+    CloudBootstrapResponse:
       type: object
       properties:
-        topic:
-          $ref: '#/components/schemas/ChatSimpleTopic'
+        cluster:
+          $ref: '#/components/schemas/CloudBootstrapCluster'
+        captcha:
+          $ref: '#/components/schemas/CloudBootstrapCaptcha'
       required:
-        - topic
-    ChatSetTypingStatusRequest:
+        - cluster
+        - captcha
+    CloudBootstrapCluster:
+      type: string
+      enum:
+        - enterprise
+        - oss
+      description: The type of cluster that the backend is currently running.
+    CloudBootstrapCaptcha:
       type: object
       properties:
-        status:
-          $ref: '#/components/schemas/ChatTypingStatus'
+        turnstile:
+          $ref: '#/components/schemas/CloudBootstrapCaptchaTurnstile'
+    CloudBootstrapCaptchaTurnstile:
+      type: object
+      properties:
+        site_key:
+          type: string
       required:
-        - status
+        - site_key
     CloudGamesNamespacesCreateGameNamespaceRequest:
       type: object
       properties:
@@ -9018,240 +8411,6 @@ components:
           type: string
       required:
         - client_response
-    ChatSendTopic:
-      type: object
-      description: Topic to send a chat message to.
-      properties:
-        thread_id:
-          type: string
-          format: uuid
-        group_id:
-          type: string
-          format: uuid
-        identity_id:
-          type: string
-          format: uuid
-    ChatSendMessageBody:
-      type: object
-      description: Data to send in a chat message.
-      properties:
-        text:
-          $ref: '#/components/schemas/ChatSendMessageBodyText'
-    ChatSendMessageBodyText:
-      type: object
-      description: The text in the text message.
-      properties:
-        body:
-          type: string
-      required:
-        - body
-    ChatQueryDirection:
-      type: string
-      enum:
-        - before
-        - after
-        - before_and_after
-    ChatThread:
-      type: object
-      description: A chat thread
-      properties:
-        thread_id:
-          type: string
-          format: uuid
-        create_ts:
-          type: string
-          format: date-time
-        topic:
-          $ref: '#/components/schemas/ChatTopic'
-        tail_message:
-          $ref: '#/components/schemas/ChatMessage'
-        last_read_ts:
-          type: string
-          format: date-time
-        unread_count:
-          type: integer
-          format: int64
-        external:
-          $ref: '#/components/schemas/ChatThreadExternalLinks'
-      required:
-        - thread_id
-        - create_ts
-        - topic
-        - last_read_ts
-        - unread_count
-        - external
-    ChatMessage:
-      type: object
-      properties:
-        chat_message_id:
-          type: string
-          format: uuid
-        thread_id:
-          type: string
-          format: uuid
-        send_ts:
-          type: string
-          format: date-time
-        body:
-          $ref: '#/components/schemas/ChatMessageBody'
-      required:
-        - chat_message_id
-        - thread_id
-        - send_ts
-        - body
-    ChatMessageBody:
-      type: object
-      description: Represents types of chat message bodies.
-      properties:
-        text:
-          $ref: '#/components/schemas/ChatMessageBodyText'
-        chat_create:
-          $ref: '#/components/schemas/ChatMessageBodyChatCreate'
-        deleted:
-          $ref: '#/components/schemas/ChatMessageBodyDeleted'
-        identity_follow:
-          $ref: '#/components/schemas/ChatMessageBodyIdentityFollow'
-        group_join:
-          $ref: '#/components/schemas/ChatMessageBodyGroupJoin'
-        group_leave:
-          $ref: '#/components/schemas/ChatMessageBodyGroupLeave'
-        group_member_kick:
-          $ref: '#/components/schemas/ChatMessageBodyGroupMemberKick'
-    ChatMessageBodyText:
-      type: object
-      properties:
-        sender:
-          $ref: '#/components/schemas/IdentityHandle'
-        body:
-          type: string
-      required:
-        - sender
-        - body
-    ChatMessageBodyChatCreate:
-      type: object
-      properties: {}
-    ChatMessageBodyDeleted:
-      type: object
-      properties:
-        sender:
-          $ref: '#/components/schemas/IdentityHandle'
-      required:
-        - sender
-    ChatMessageBodyIdentityFollow:
-      type: object
-      properties: {}
-    ChatMessageBodyGroupJoin:
-      type: object
-      properties:
-        identity:
-          $ref: '#/components/schemas/IdentityHandle'
-      required:
-        - identity
-    ChatMessageBodyGroupLeave:
-      type: object
-      properties:
-        identity:
-          $ref: '#/components/schemas/IdentityHandle'
-      required:
-        - identity
-    ChatMessageBodyGroupMemberKick:
-      type: object
-      properties:
-        identity:
-          $ref: '#/components/schemas/IdentityHandle'
-      required:
-        - identity
-    ChatTopic:
-      type: object
-      description: Represents the topic of the given chat thread.
-      properties:
-        group:
-          $ref: '#/components/schemas/ChatTopicGroup'
-        direct:
-          $ref: '#/components/schemas/ChatTopicDirect'
-    ChatTopicGroup:
-      type: object
-      properties:
-        group:
-          $ref: '#/components/schemas/GroupHandle'
-      required:
-        - group
-    ChatTopicDirect:
-      type: object
-      properties:
-        identity_a:
-          $ref: '#/components/schemas/IdentityHandle'
-        identity_b:
-          $ref: '#/components/schemas/IdentityHandle'
-      required:
-        - identity_a
-        - identity_b
-    ChatSimpleTopic:
-      type: object
-      description: >
-        Represents a topic of the given chat thread without the associated
-        handles
-
-        for the topic.
-      properties:
-        group:
-          $ref: '#/components/schemas/ChatSimpleTopicGroup'
-        direct:
-          $ref: '#/components/schemas/ChatSimpleTopicDirect'
-    ChatSimpleTopicGroup:
-      type: object
-      properties:
-        group:
-          type: string
-          format: uuid
-      required:
-        - group
-    ChatSimpleTopicDirect:
-      type: object
-      properties:
-        identity_a:
-          type: string
-          format: uuid
-        identity_b:
-          type: string
-          format: uuid
-      required:
-        - identity_a
-        - identity_b
-    ChatThreadExternalLinks:
-      type: object
-      properties:
-        chat:
-          type: string
-      required:
-        - chat
-    ChatTypingStatus:
-      type: object
-      properties:
-        idle:
-          $ref: '#/components/schemas/EmptyObject'
-          description: Not typing
-        typing:
-          $ref: '#/components/schemas/EmptyObject'
-          description: Typing
-    ChatIdentityTypingStatus:
-      type: object
-      properties:
-        identity:
-          $ref: '#/components/schemas/IdentityHandle'
-        status:
-          $ref: '#/components/schemas/ChatTypingStatus'
-      required:
-        - identity
-        - status
-    ChatGetDirectThreadResponse:
-      type: object
-      properties:
-        thread_id:
-          type: string
-          format: uuid
-        identity:
-          $ref: '#/components/schemas/IdentityHandle'
     CloudInspectResponse:
       type: object
       properties:
@@ -9487,12 +8646,6 @@ components:
             type: number
             format: double
           description: Memory metrics.
-        memory_max:
-          type: array
-          items:
-            type: number
-            format: double
-          description: Peak memory metrics.
         allocated_memory:
           type: number
           format: double
@@ -9501,7 +8654,6 @@ components:
         - job
         - cpu
         - memory
-        - memory_max
     CloudAuthAgent:
       type: object
       description: The current authenticated agent.
@@ -9728,9 +8880,8 @@ components:
           type: string
           description: The server provider of this region.
         universal_region:
-          type: number
-          format: double
-          description: A universal number given to this region.
+          $ref: '#/components/schemas/CloudUniversalRegion'
+          description: A universal region label given to this region.
         provider_display_name:
           type: string
           description: Represent a resource's readable display name.
@@ -9780,6 +8931,8 @@ components:
         price_per_second:
           type: integer
           description: >-
+            **Deprecated**
+
             Price billed for every second this server is running (in
             quadrillionth USD, 1,000,000,000,000 = $1.00).
       required:
@@ -9791,6 +8944,37 @@ components:
         - disk
         - bandwidth
         - price_per_second
+    CloudUniversalRegion:
+      type: string
+      enum:
+        - unknown
+        - local
+        - amsterdam
+        - atlanta
+        - bangalore
+        - dallas
+        - frankfurt
+        - london
+        - mumbai
+        - newark
+        - new_york_city
+        - san_francisco
+        - singapore
+        - sydney
+        - tokyo
+        - toronto
+        - washington_dc
+        - chicago
+        - paris
+        - seattle
+        - sao_paulo
+        - stockholm
+        - chennai
+        - osaka
+        - milan
+        - miami
+        - jakarta
+        - los_angeles
     CloudNamespaceFull:
       type: object
       description: A full namespace.
@@ -10046,6 +9230,7 @@ components:
           description: Unsigned 64 bit integer.
       required:
         - path
+        - content_length
     CloudGamesPrepareCustomAvatarUploadResponse:
       type: object
       properties:
@@ -10080,6 +9265,10 @@ components:
           $ref: '#/components/schemas/UploadPrepareFile'
         multipart_upload:
           type: boolean
+        kind:
+          $ref: '#/components/schemas/CloudGamesBuildKind'
+        compression:
+          $ref: '#/components/schemas/CloudGamesBuildCompression'
       required:
         - display_name
         - image_tag
@@ -10102,6 +9291,16 @@ components:
       required:
         - build_id
         - upload_id
+    CloudGamesBuildKind:
+      type: string
+      enum:
+        - docker_image
+        - oci_bundle
+    CloudGamesBuildCompression:
+      type: string
+      enum:
+        - none
+        - lz4
     CloudGamesListGameCdnSitesResponse:
       type: object
       properties:
@@ -10149,12 +9348,12 @@ components:
         games:
           type: array
           items:
-            $ref: '#/components/schemas/CloudGamesGameSummary'
+            $ref: '#/components/schemas/GameSummary'
           description: A list of game summaries.
         groups:
           type: array
           items:
-            $ref: '#/components/schemas/GroupHandle'
+            $ref: '#/components/schemas/GroupSummary'
           description: A list of group summaries.
         watch:
           $ref: '#/components/schemas/WatchResponse'
@@ -10241,6 +9440,7 @@ components:
           description: Unsigned 64 bit integer.
       required:
         - path
+        - content_length
     CloudGamesGameBannerUploadPrepareResponse:
       type: object
       properties:
@@ -10279,45 +9479,6 @@ components:
       required:
         - upload_id
         - presigned_request
-    CloudGamesGameSummary:
-      type: object
-      description: A game summary.
-      properties:
-        game_id:
-          type: string
-          format: uuid
-        create_ts:
-          type: string
-          format: date-time
-          description: RFC3339 timestamp.
-        name_id:
-          type: string
-          description: >-
-            A human readable short identifier used to references resources.
-            Different than a `rivet.common#Uuid` because this is intended to be
-            human readable. Different than `rivet.common#DisplayName` because
-            this should not include special characters and be short.
-        display_name:
-          type: string
-          description: Represent a resource's readable display name.
-        developer_group_id:
-          type: string
-          format: uuid
-        total_player_count:
-          type: integer
-          description: Unsigned 32 bit integer.
-        logo_url:
-          type: string
-          description: The URL of this game's logo image.
-        banner_url:
-          type: string
-          description: The URL of this game's banner image.
-      required:
-        - game_id
-        - create_ts
-        - name_id
-        - display_name
-        - developer_group_id
     CloudGamesExportMatchmakerLobbyHistoryRequest:
       type: object
       properties:
@@ -10329,6 +9490,9 @@ components:
           type: integer
           format: int64
           description: Unsigned 64 bit integer.
+      required:
+        - query_start
+        - query_end
     CloudGamesExportMatchmakerLobbyHistoryResponse:
       type: object
       properties:
@@ -10343,6 +9507,8 @@ components:
         did_remove:
           type: boolean
           description: Whether or not the lobby was successfully stopped.
+      required:
+        - did_remove
     CloudGamesGetLobbyLogsResponse:
       type: object
       properties:
@@ -10664,19 +9830,12 @@ components:
       type: object
       description: Turnstile captcha configuration.
       properties:
-        domains:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/CloudVersionMatchmakerCaptchaTurnstileDomain'
-      required:
-        - domains
-    CloudVersionMatchmakerCaptchaTurnstileDomain:
-      type: object
-      description: Turnstile domain configuration.
-      properties:
+        site_key:
+          type: string
         secret_key:
           type: string
       required:
+        - site_key
         - secret_key
     CloudVersionMatchmakerNetworkMode:
       type: string
@@ -10701,12 +9860,12 @@ components:
           $ref: '#/components/schemas/CloudVersionMatchmakerGameModeRuntimeDocker'
         listable:
           type: boolean
-        find_config:
-          $ref: '#/components/schemas/CloudVersionMatchmakerGameModeFindConfig'
-        join_config:
-          $ref: '#/components/schemas/CloudVersionMatchmakerGameModeJoinConfig'
-        create_config:
-          $ref: '#/components/schemas/CloudVersionMatchmakerGameModeCreateConfig'
+        taggable:
+          type: boolean
+        allow_dynamic_max_players:
+          type: boolean
+        actions:
+          $ref: '#/components/schemas/CloudVersionMatchmakerGameModeActions'
         tier:
           type: string
         idle_lobbies:
@@ -10781,6 +9940,16 @@ components:
       required:
         - min
         - max
+    CloudVersionMatchmakerGameModeActions:
+      type: object
+      description: Configuration for the connection types allowed for a game mode.
+      properties:
+        find:
+          $ref: '#/components/schemas/CloudVersionMatchmakerGameModeFindConfig'
+        join:
+          $ref: '#/components/schemas/CloudVersionMatchmakerGameModeJoinConfig'
+        create:
+          $ref: '#/components/schemas/CloudVersionMatchmakerGameModeCreateConfig'
     CloudVersionMatchmakerGameModeIdentityRequirement:
       type: string
       enum:
@@ -10822,12 +9991,11 @@ components:
         identity_requirement:
           $ref: >-
             #/components/schemas/CloudVersionMatchmakerGameModeIdentityRequirement
-        verification_config:
+        verification:
           $ref: >-
             #/components/schemas/CloudVersionMatchmakerGameModeVerificationConfig
       required:
         - enabled
-        - identity_requirement
     CloudVersionMatchmakerGameModeJoinConfig:
       type: object
       description: >-
@@ -10841,12 +10009,11 @@ components:
         identity_requirement:
           $ref: >-
             #/components/schemas/CloudVersionMatchmakerGameModeIdentityRequirement
-        verification_config:
+        verification:
           $ref: >-
             #/components/schemas/CloudVersionMatchmakerGameModeVerificationConfig
       required:
         - enabled
-        - identity_requirement
     CloudVersionMatchmakerGameModeCreateConfig:
       type: object
       description: >-
@@ -10854,22 +10021,25 @@ components:
         If this value is not set in the config, the /create endpoint is NOT
         enabled.
       properties:
+        enabled:
+          type: boolean
+          description: Sets whether or not the /create endpoint is enabled.
         identity_requirement:
           $ref: >-
             #/components/schemas/CloudVersionMatchmakerGameModeIdentityRequirement
-        verification_config:
+        verification:
           $ref: >-
             #/components/schemas/CloudVersionMatchmakerGameModeVerificationConfig
         enable_public:
           type: boolean
+          description: Defaults to false when unset.
         enable_private:
           type: boolean
+          description: Defaults to true when unset.
         max_lobbies_per_identity:
           type: integer
       required:
-        - identity_requirement
-        - enable_public
-        - enable_private
+        - enabled
     CloudVersionMatchmakerLobbyGroup:
       type: object
       description: A game mode.
@@ -11096,6 +10266,36 @@ components:
         - game_id
         - name_id
         - display_name
+    GameSummary:
+      type: object
+      properties:
+        game_id:
+          type: string
+          format: uuid
+        name_id:
+          $ref: '#/components/schemas/Identifier'
+        display_name:
+          $ref: '#/components/schemas/DisplayName'
+        logo_url:
+          type: string
+          description: The URL of this game's logo image.
+        banner_url:
+          type: string
+          description: The URL of this game's banner image.
+        url:
+          type: string
+        developer:
+          $ref: '#/components/schemas/GroupHandle'
+        total_player_count:
+          type: integer
+          description: Unsigned 32 bit integer.
+      required:
+        - game_id
+        - name_id
+        - display_name
+        - url
+        - developer
+        - total_player_count
     GameStatSummary:
       type: object
       description: A game statistic summary.
@@ -11293,12 +10493,8 @@ components:
         profile:
           type: string
           description: A link to this group's profile page.
-        chat:
-          type: string
-          description: A link to this group's chat page.
       required:
         - profile
-        - chat
     GroupJoinRequest:
       type: object
       description: A group join request.
@@ -11365,9 +10561,6 @@ components:
             Whether or not the current identity is currently requesting to join
             this group.
         owner_identity_id:
-          type: string
-          format: uuid
-        thread_id:
           type: string
           format: uuid
       required:
@@ -11448,16 +10641,10 @@ components:
     IdentityGlobalEventKind:
       type: object
       properties:
-        chat_message:
-          $ref: '#/components/schemas/IdentityGlobalEventChatMessage'
-        chat_read:
-          $ref: '#/components/schemas/IdentityGlobalEventChatRead'
         identity_update:
           $ref: '#/components/schemas/IdentityGlobalEventIdentityUpdate'
         matchmaker_lobby_join:
           $ref: '#/components/schemas/IdentityGlobalEventMatchmakerLobbyJoin'
-        chat_thread_remove:
-          $ref: '#/components/schemas/IdentityGlobalEventChatThreadRemove'
     IdentityGlobalEventNotification:
       type: object
       description: >
@@ -11517,25 +10704,6 @@ components:
         - description
         - thumbnail_url
         - url
-    IdentityGlobalEventChatMessage:
-      type: object
-      properties:
-        thread:
-          $ref: '#/components/schemas/ChatThread'
-      required:
-        - thread
-    IdentityGlobalEventChatRead:
-      type: object
-      properties:
-        thread_id:
-          type: string
-          format: uuid
-        read_ts:
-          type: string
-          format: date-time
-      required:
-        - thread_id
-        - read_ts
     IdentityGlobalEventIdentityUpdate:
       type: object
       properties:
@@ -11558,17 +10726,6 @@ components:
         - lobby
         - ports
         - player
-    IdentityGlobalEventChatThreadRemove:
-      type: object
-      description: >
-        Received any time the current identity is no longer able to access the 
-        given thread. This can happen if the identity leaves a group or party.
-      properties:
-        thread_id:
-          type: string
-          format: uuid
-      required:
-        - thread_id
     IdentityUpdateGameActivity:
       type: object
       description: >-
@@ -11754,9 +10911,6 @@ components:
         settings:
           type: string
           description: A link to the Rivet settings page.
-        chat:
-          type: string
-          description: A link to a chat page with the given identity.
       required:
         - profile
     IdentityPresence:
@@ -11814,6 +10968,8 @@ components:
       properties:
         email:
           $ref: '#/components/schemas/IdentityEmailLinkedAccount'
+        access_token:
+          $ref: '#/components/schemas/IdentityAccessTokenLinkedAccount'
     IdentityEmailLinkedAccount:
       type: object
       description: An identity's linked email.
@@ -11822,6 +10978,14 @@ components:
           $ref: '#/components/schemas/Email'
       required:
         - email
+    IdentityAccessTokenLinkedAccount:
+      type: object
+      description: An identity's access token identity.
+      properties:
+        name:
+          type: string
+      required:
+        - name
     IdentityDevState:
       type: string
       enum:
@@ -12191,7 +11355,7 @@ components:
     UploadPresignedRequest:
       type: object
       description: >
-        A presigned request used to upload files.  Upload your file to the given
+        A presigned request used to upload files. Upload your file to the given
         URL via a PUT request.
       properties:
         path:
@@ -12203,9 +11367,21 @@ components:
           type: string
           description: |
             The URL of the presigned request for which to upload your file to.
+        byte_offset:
+          type: integer
+          format: int64
+          description: >-
+            The byte offset for this multipart chunk. Always 0 if not a
+            multipart upload.
+        content_length:
+          type: integer
+          format: int64
+          description: Expected size of this upload.
       required:
         - path
         - url
+        - byte_offset
+        - content_length
     UploadPrepareFile:
       type: object
       description: A file being prepared to upload.
@@ -12227,3 +11403,8 @@ components:
     BearerAuth:
       type: http
       scheme: bearer
+servers:
+  - url: https://api.rivet.gg
+    description: Production
+  - url: https://api.staging.gameinc.io
+    description: Staging
